@@ -1,0 +1,1014 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  DOCTOR
+  NURSE
+  RECEPTIONIST
+  ACCOUNTANT
+  PHARMACIST
+  LAB_TECHNICIAN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  PARTIAL
+  REFUNDED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum LabStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum NodeType {
+  PAGE
+  DIALOG
+  FORM
+  DECISION
+  TEXT
+  ACTION
+}
+
+enum ActionType {
+  CREATE_APPOINTMENT
+  CREATE_RECORD
+  CREATE_LAB_ORDER
+  CREATE_BILL
+  SEND_NOTIFICATION
+  UPDATE_APPOINTMENT_STATUS
+  ALLOCATE_BED
+  DISCHARGE_PATIENT
+  CREATE_REFERRAL
+  RESERVE_OR
+  CREATE_CONSENT
+}
+
+enum SpecimenStatus {
+  COLLECTED
+  IN_TRANSIT
+  RECEIVED
+  PROCESSING
+  RESULTED
+  REJECTED
+}
+
+enum SessionStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(RECEPTIONIST)
+  phone     String?
+  avatar    String?
+  isActive  Boolean  @default(true)
+  twoFactorEnabled Boolean @default(false)
+  loginAttempts    Int     @default(0)
+  lockedUntil      DateTime?
+  passwordResetToken String?
+  passwordResetExpires DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor        Doctor?
+  staff         Staff?
+  refreshTokens RefreshToken[]
+  otpCodes      OtpCode[]
+  auditLogs     AuditLog[]
+  rolePermissions UserRolePermission[]
+  wfSessions    WorkflowSession[]     @relation("InitiatorSessions")
+}
+
+model OtpCode {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  type      String   // LOGIN | RESET_PASSWORD
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// ─── Core Clinical ───────────────────────────────────────────────────────────
+
+model Doctor {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty       String
+  experienceYears Int      @default(0)
+  roomNumber      String?
+  bio             String?
+  createdAt       DateTime @default(now())
+
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  schedules      DoctorSchedule[]
+  wardDoctors    WardDoctor[]
+  departmentDoctors DepartmentDoctor[]
+  surgeriesAsSurgeon Surgery[]
+  teleConsults   TeleConsult[]
+}
+
+model DoctorSchedule {
+  id        String   @id @default(uuid())
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  dayOfWeek Int      // 0=Sun, 1=Mon...6=Sat
+  startTime String   // "08:00"
+  endTime   String   // "17:00"
+  isActive  Boolean  @default(true)
+}
+
+model Patient {
+  id           String   @id @default(uuid())
+  patientCode  String?  @unique @default(cuid())
+  name         String
+  dob          DateTime
+  gender       Gender
+  phone        String
+  address      String?
+  bloodType    String?
+  email        String?
+  allergies    String?
+  chronicDiseases String?
+  insuranceId  String?
+  emergencyContact String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  bills          Bill[]
+  labOrders      LabOrder[]
+  wfSessions     WorkflowSession[]
+  encounters     Encounter[]
+  insurancePolicies InsurancePolicy[]
+  surgeries      Surgery[]
+  referrals      Referral[]
+  teleConsults   TeleConsult[]
+  consentForms   ConsentForm[]
+}
+
+model Appointment {
+  id              String            @id @default(uuid())
+  patientId       String
+  patient         Patient           @relation(fields: [patientId], references: [id])
+  doctorId        String
+  doctor          Doctor            @relation(fields: [doctorId], references: [id])
+  appointmentDate DateTime
+  status          AppointmentStatus @default(PENDING)
+  note            String?
+  queueNumber     Int?
+  checkinAt       DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  medicalRecord MedicalRecord?
+}
+
+model MedicalRecord {
+  id             String      @id @default(uuid())
+  patientId      String
+  patient        Patient     @relation(fields: [patientId], references: [id])
+  doctorId       String
+  doctor         Doctor      @relation(fields: [doctorId], references: [id])
+  appointmentId  String?     @unique
+  appointment    Appointment? @relation(fields: [appointmentId], references: [id])
+  chiefComplaint String?
+  diagnosis      String
+  treatment      String?
+  note           String?
+  attachments    String[]    @default([])
+  createdAt      DateTime    @default(now())
+
+  prescriptions Prescription[]
+  labOrders     LabOrder[]
+}
+
+// ─── Pharmacy ────────────────────────────────────────────────────────────────
+
+model Medicine {
+  id           String   @id @default(uuid())
+  code         String?  @unique @default(cuid())
+  name         String
+  genericName  String?
+  category     String?
+  price        Float
+  stock        Int      @default(0)
+  minStock     Int      @default(10)
+  unit         String   @default("viên")
+  description  String?
+  manufacturer String?
+  expiryDate   DateTime?
+  createdAt    DateTime @default(now())
+
+  prescriptions  Prescription[]
+  stockMovements StockMovement[]
+}
+
+model Prescription {
+  id          String        @id @default(uuid())
+  recordId    String
+  record      MedicalRecord @relation(fields: [recordId], references: [id])
+  medicineId  String
+  medicine    Medicine      @relation(fields: [medicineId], references: [id])
+  dosage      String
+  duration    String
+  instruction String?
+  quantity    Int           @default(1)
+  dispensed   Boolean       @default(false)
+  dispensedAt DateTime?
+}
+
+model StockMovement {
+  id         String   @id @default(uuid())
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  type       String   // IN | OUT | ADJUST
+  quantity   Int
+  reason     String?
+  createdAt  DateTime @default(now())
+}
+
+// ─── Laboratory ──────────────────────────────────────────────────────────────
+
+model LabTest {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  category    String
+  price       Float
+  description String?
+  normalRange String?
+  unit        String?
+
+  labOrderItems LabOrderItem[]
+}
+
+model LabOrder {
+  id          String    @id @default(uuid())
+  patientId   String
+  patient     Patient   @relation(fields: [patientId], references: [id])
+  recordId    String?
+  record      MedicalRecord? @relation(fields: [recordId], references: [id])
+  status      LabStatus @default(PENDING)
+  note        String?
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  items LabOrderItem[]
+  specimens Specimen[]
+}
+
+model LabOrderItem {
+  id        String    @id @default(uuid())
+  orderId   String
+  order     LabOrder  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  testId    String
+  test      LabTest   @relation(fields: [testId], references: [id])
+  result    String?
+  unit      String?
+  normalRange String?
+  isAbnormal Boolean  @default(false)
+  completedAt DateTime?
+}
+
+// ─── Billing ─────────────────────────────────────────────────────────────────
+
+model Bill {
+  id            String        @id @default(uuid())
+  billCode      String        @unique @default(cuid())
+  patientId     String
+  patient       Patient       @relation(fields: [patientId], references: [id])
+  totalAmount   Float
+  discount      Float         @default(0)
+  insuranceCover Float        @default(0)
+  finalAmount   Float
+  paymentStatus PaymentStatus @default(UNPAID)
+  paymentMethod String?
+  paidAt        DateTime?
+  note          String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  items BillItem[]
+  insuranceClaims InsuranceClaim[]
+}
+
+model BillItem {
+  id          String @id @default(uuid())
+  billId      String
+  bill        Bill   @relation(fields: [billId], references: [id], onDelete: Cascade)
+  serviceName String
+  serviceType String @default("SERVICE") // SERVICE | MEDICINE | LAB
+  price       Float
+  quantity    Int    @default(1)
+  total       Float
+}
+
+// ─── HR / Staff ──────────────────────────────────────────────────────────────
+
+model Staff {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department String
+  position   String
+  joinDate   DateTime
+  salary     Float?
+  createdAt  DateTime @default(now())
+
+  shifts Shift[]
+}
+
+model Shift {
+  id        String   @id @default(uuid())
+  staffId   String
+  staff     Staff    @relation(fields: [staffId], references: [id])
+  date      DateTime
+  startTime String
+  endTime   String
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+// ─── Inventory ───────────────────────────────────────────────────────────────
+
+model InventoryItem {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  category    String
+  quantity    Int      @default(0)
+  unit        String
+  minQuantity Int      @default(5)
+  location    String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  movements InventoryMovement[]
+}
+
+model InventoryMovement {
+  id        String        @id @default(uuid())
+  itemId    String
+  item      InventoryItem @relation(fields: [itemId], references: [id])
+  type      String        // IN | OUT | ADJUST
+  quantity  Int
+  reason    String?
+  createdAt DateTime      @default(now())
+}
+
+// ─── Workflow Engine ─────────────────────────────────────────────────────────
+
+model Workflow {
+  id          String         @id @default(uuid())
+  key         String         @unique
+  title       String
+  description String?
+  isActive    Boolean        @default(true)
+  version     Int            @default(1)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  nodes    WorkflowNode[]
+  edges    WorkflowEdge[]
+  sessions WorkflowSession[]
+}
+
+model WorkflowNode {
+  id         String   @id @default(uuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  key        String
+  type       NodeType
+  title      String
+  config     Json?    // form schema, page route, text, etc.
+  posX       Float    @default(0)
+  posY       Float    @default(0)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  options  NodeOption[]
+  outEdges WorkflowEdge[] @relation("fromEdges")
+  inEdges  WorkflowEdge[] @relation("toEdges")
+
+  @@unique([workflowId, key])
+}
+
+model WorkflowEdge {
+  id         String       @id @default(uuid())
+  workflowId String
+  workflow   Workflow     @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  fromNodeId String
+  fromNode   WorkflowNode @relation("fromEdges", fields: [fromNodeId], references: [id], onDelete: Cascade)
+  toNodeId   String
+  toNode     WorkflowNode @relation("toEdges", fields: [toNodeId], references: [id], onDelete: Cascade)
+  condition  String?
+  label      String?
+}
+
+model NodeOption {
+  id           String       @id @default(uuid())
+  nodeId       String
+  node         WorkflowNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  label        String
+  value        String
+  transitionTo String?      // WorkflowNode id
+  condition    String?
+  order        Int          @default(0)
+  actions      NodeAction[]
+}
+
+model NodeAction {
+  id       String     @id @default(uuid())
+  optionId String
+  option   NodeOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  type     ActionType
+  params   Json?
+}
+
+model WorkflowSession {
+  id            String        @id @default(uuid())
+  workflowId    String
+  workflow      Workflow      @relation(fields: [workflowId], references: [id])
+  patientId     String?
+  patient       Patient?      @relation(fields: [patientId], references: [id])
+  context       Json          @default("{}")
+  answers       Json          @default("[]")
+  currentNodeId String?
+  status        SessionStatus @default(ACTIVE)
+  initiatorId   String?
+  initiator     User?         @relation("InitiatorSessions", fields: [initiatorId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  logs SessionLog[]
+}
+
+model SessionLog {
+  id        String          @id @default(uuid())
+  sessionId String
+  session   WorkflowSession @relation(fields: [sessionId], references: [id])
+  nodeId    String?
+  action    String
+  payload   Json?
+  createdAt DateTime        @default(now())
+}
+
+// ─── Audit ───────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  before    Json?
+  after     Json?
+  ip        String?
+  createdAt DateTime @default(now())
+}
+
+// ─── Notification ────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String?
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+}
+
+// ─── Campus / Location Hierarchy ─────────────────────────────────────────────
+
+model Campus {
+  id        String     @id @default(uuid())
+  code      String     @unique
+  name      String
+  address   String?
+  phone     String?
+  buildings Building[]
+}
+
+model Building {
+  id       String  @id @default(uuid())
+  campusId String
+  campus   Campus  @relation(fields: [campusId], references: [id])
+  name     String
+  floors   Floor[]
+}
+
+model Floor {
+  id         String   @id @default(uuid())
+  buildingId String
+  building   Building @relation(fields: [buildingId], references: [id])
+  number     Int
+  label      String?
+  wards      Ward[]
+}
+
+model Ward {
+  id      String @id @default(uuid())
+  floorId String
+  floor   Floor  @relation(fields: [floorId], references: [id])
+  name    String
+  code    String
+  type    String @default("GENERAL") // GENERAL | ICU | EMERGENCY | SURGERY
+  rooms   Room[]
+  doctors WardDoctor[]
+}
+
+model WardDoctor {
+  id       String @id @default(uuid())
+  wardId   String
+  ward     Ward   @relation(fields: [wardId], references: [id])
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+}
+
+model Room {
+  id     String @id @default(uuid())
+  wardId String
+  ward   Ward   @relation(fields: [wardId], references: [id])
+  name   String
+  type   String @default("PATIENT") // PATIENT | OPERATING | RECOVERY | EXAM
+  beds   Bed[]
+  operatingRoom OperatingRoom?
+}
+
+model Bed {
+  id         String    @id @default(uuid())
+  roomId     String
+  room       Room      @relation(fields: [roomId], references: [id])
+  code       String
+  status     BedStatus @default(AVAILABLE)
+  encounters Encounter[]
+
+  @@unique([roomId, code])
+}
+
+enum BedStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  MAINTENANCE
+}
+
+// ─── Department ───────────────────────────────────────────────────────────────
+
+model Department {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  headId      String?  // Doctor id
+  doctors     DepartmentDoctor[]
+  encounters  Encounter[]
+}
+
+model DepartmentDoctor {
+  id           String     @id @default(uuid())
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  doctorId     String
+  doctor       Doctor     @relation(fields: [doctorId], references: [id])
+  isPrimary    Boolean    @default(false)
+}
+
+// ─── Encounter (Episode of Care) ─────────────────────────────────────────────
+
+enum EncounterType {
+  OUTPATIENT
+  INPATIENT
+  EMERGENCY
+  DAY_SURGERY
+  TELEMEDICINE
+}
+
+enum EncounterStatus {
+  REGISTERED
+  TRIAGED
+  IN_PROGRESS
+  ADMITTED
+  DISCHARGED
+  TRANSFERRED
+  CANCELLED
+}
+
+model Encounter {
+  id              String          @id @default(uuid())
+  encounterCode   String          @unique @default(cuid())
+  patientId       String
+  patient         Patient         @relation(fields: [patientId], references: [id])
+  type            EncounterType   @default(OUTPATIENT)
+  status          EncounterStatus @default(REGISTERED)
+  departmentId    String?
+  department      Department?     @relation(fields: [departmentId], references: [id])
+  bedId           String?
+  bed             Bed?            @relation(fields: [bedId], references: [id])
+  primaryDoctorId String?
+  chiefComplaint  String?
+  triageLevel     Int?            // 1=Critical, 2=Urgent, 3=Less Urgent, 4=Non-Urgent
+  admitDate       DateTime?
+  dischargeDate   DateTime?
+  dischargeNote   String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  orders          ClinicalOrder[]
+  notes           ClinicalNote[]
+  vitals          VitalSign[]
+  diagnoses       EncounterDiagnosis[]
+  transfers       BedTransfer[]
+}
+
+model VitalSign {
+  id          String   @id @default(uuid())
+  encounterId String
+  encounter   Encounter @relation(fields: [encounterId], references: [id])
+  temperature Float?
+  pulse       Int?
+  respRate    Int?
+  bpSystolic  Int?
+  bpDiastolic Int?
+  spO2        Float?
+  weight      Float?
+  height      Float?
+  recordedAt  DateTime @default(now())
+  recordedBy  String?
+}
+
+model ClinicalNote {
+  id          String    @id @default(uuid())
+  encounterId String
+  encounter   Encounter @relation(fields: [encounterId], references: [id])
+  type        String    @default("PROGRESS") // PROGRESS | ADMISSION | DISCHARGE | NURSING
+  content     String
+  authorId    String
+  createdAt   DateTime  @default(now())
+}
+
+model EncounterDiagnosis {
+  id          String    @id @default(uuid())
+  encounterId String
+  encounter   Encounter @relation(fields: [encounterId], references: [id])
+  icdCode     String
+  description String
+  type        String    @default("PRIMARY") // PRIMARY | SECONDARY | COMPLICATION
+  confirmedAt DateTime?
+}
+
+model BedTransfer {
+  id          String    @id @default(uuid())
+  encounterId String
+  encounter   Encounter @relation(fields: [encounterId], references: [id])
+  fromBedId   String?
+  toBedId     String
+  reason      String?
+  transferAt  DateTime  @default(now())
+  authorId    String
+}
+
+// ─── Clinical Orders ──────────────────────────────────────────────────────────
+
+enum ClinicalOrderType {
+  LAB
+  IMAGING
+  MEDICATION
+  PROCEDURE
+  REFERRAL
+  DIET
+}
+
+enum ClinicalOrderStatus {
+  PENDING
+  ACKNOWLEDGED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model ClinicalOrder {
+  id          String              @id @default(uuid())
+  encounterId String
+  encounter   Encounter           @relation(fields: [encounterId], references: [id])
+  type        ClinicalOrderType
+  status      ClinicalOrderStatus @default(PENDING)
+  priority    String              @default("ROUTINE") // STAT | URGENT | ROUTINE
+  orderedBy   String
+  orderedAt   DateTime            @default(now())
+  params      Json?
+  result      Json?
+  note        String?
+  completedAt DateTime?
+}
+
+// ─── OR Scheduling ────────────────────────────────────────────────────────────
+
+model OperatingRoom {
+  id        String      @id @default(uuid())
+  roomId    String      @unique
+  room      Room        @relation(fields: [roomId], references: [id])
+  name      String
+  isActive  Boolean     @default(true)
+  surgeries Surgery[]
+}
+
+model Surgery {
+  id              String        @id @default(uuid())
+  orId            String
+  or              OperatingRoom @relation(fields: [orId], references: [id])
+  patientId       String
+  patient         Patient       @relation(fields: [patientId], references: [id])
+  surgeonId       String
+  surgeon         Doctor        @relation(fields: [surgeonId], references: [id])
+  scheduledStart  DateTime
+  scheduledEnd    DateTime
+  actualStart     DateTime?
+  actualEnd       DateTime?
+  status          String        @default("SCHEDULED") // SCHEDULED | IN_PROGRESS | COMPLETED | CANCELLED
+  procedureName   String
+  anesthesiaType  String?
+  preOpNote       String?
+  postOpNote      String?
+  checklist       Json?
+  createdAt       DateTime      @default(now())
+}
+
+// ─── Insurance & Claims ───────────────────────────────────────────────────────
+
+model InsurancePolicy {
+  id         String   @id @default(uuid())
+  patientId  String
+  patient    Patient  @relation(fields: [patientId], references: [id])
+  provider   String
+  policyNo   String
+  planName   String?
+  validFrom  DateTime
+  validTo    DateTime
+  coveragePercent Float @default(80)
+  createdAt  DateTime @default(now())
+}
+
+model InsuranceClaim {
+  id          String   @id @default(uuid())
+  billId      String
+  bill        Bill     @relation(fields: [billId], references: [id])
+  provider    String
+  policyNo    String
+  claimAmount Float
+  status      String   @default("DRAFT") // DRAFT | SUBMITTED | APPROVED | REJECTED | PAID
+  submittedAt DateTime?
+  paidAt      DateTime?
+  response    Json?
+  createdAt   DateTime @default(now())
+}
+
+// ─── Procurement / Supplier ───────────────────────────────────────────────────
+
+model Supplier {
+  id           String          @id @default(uuid())
+  code         String          @unique
+  name         String
+  contactName  String?
+  phone        String?
+  email        String?
+  address      String?
+  createdAt    DateTime        @default(now())
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  id          String    @id @default(uuid())
+  supplierId  String
+  supplier    Supplier  @relation(fields: [supplierId], references: [id])
+  status      String    @default("DRAFT") // DRAFT | SENT | RECEIVED | CANCELLED
+  totalAmount Float     @default(0)
+  note        String?
+  orderedAt   DateTime  @default(now())
+  receivedAt  DateTime?
+  items       PurchaseOrderItem[]
+}
+
+model PurchaseOrderItem {
+  id         String        @id @default(uuid())
+  orderId    String
+  order      PurchaseOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  itemName   String
+  quantity   Int
+  unitPrice  Float
+  total      Float
+  received   Int           @default(0)
+}
+
+// ─── Equipment / Asset ────────────────────────────────────────────────────────
+
+model Equipment {
+  id           String   @id @default(uuid())
+  code         String   @unique
+  name         String
+  category     String
+  location     String?
+  status       String   @default("ACTIVE") // ACTIVE | MAINTENANCE | RETIRED
+  purchaseDate DateTime?
+  warrantyEnd  DateTime?
+  lastService  DateTime?
+  nextService  DateTime?
+  createdAt    DateTime @default(now())
+  maintenanceLogs EquipmentMaintenance[]
+}
+
+model EquipmentMaintenance {
+  id          String    @id @default(uuid())
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  type        String    // PREVENTIVE | CORRECTIVE | CALIBRATION
+  description String
+  performedBy String?
+  performedAt DateTime  @default(now())
+  nextDue     DateTime?
+  cost        Float?
+}
+
+// ─── Referral ─────────────────────────────────────────────────────────────────
+
+model Referral {
+  id            String   @id @default(uuid())
+  patientId     String
+  patient       Patient  @relation(fields: [patientId], references: [id])
+  fromDoctorId  String
+  toDepartment  String?
+  toFacility    String?
+  reason        String
+  urgency       String   @default("ROUTINE")
+  status        String   @default("PENDING") // PENDING | ACCEPTED | COMPLETED | DECLINED
+  note          String?
+  createdAt     DateTime @default(now())
+}
+
+// ─── Telemedicine ─────────────────────────────────────────────────────────────
+
+model TeleConsult {
+  id          String   @id @default(uuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  doctorId    String
+  doctor      Doctor   @relation(fields: [doctorId], references: [id])
+  scheduledAt DateTime
+  startedAt   DateTime?
+  endedAt     DateTime?
+  status      String   @default("SCHEDULED") // SCHEDULED | IN_PROGRESS | COMPLETED | CANCELLED
+  roomUrl     String?
+  note        String?
+  createdAt   DateTime @default(now())
+}
+
+// ─── Consent ──────────────────────────────────────────────────────────────────
+
+model ConsentForm {
+  id          String   @id @default(uuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  type        String   // GENERAL | SURGERY | ANESTHESIA | RESEARCH
+  content     String
+  signedAt    DateTime?
+  signedBy    String?
+  witnessId   String?
+  fileUrl     String?
+  createdAt   DateTime @default(now())
+}
+
+// ─── RBAC / ABAC Authorization ───────────────────────────────────────────────
+
+model Permission {
+  id          String   @id @default(uuid())
+  key         String   @unique  // e.g. "encounter.create", "bed.allocate"
+  name        String
+  description String?
+  resource    String?           // e.g. "Encounter", "Bed"
+  action      String?           // e.g. "CREATE", "UPDATE"
+  condition   String?           // ABAC: JS expression using ctx & user
+  createdAt   DateTime @default(now())
+
+  rolePermissions     RolePermission[]
+  userRolePermissions UserRolePermission[]
+}
+
+// Role → Permission mapping (system-level)
+model RolePermission {
+  id           String     @id @default(uuid())
+  role         Role
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([role, permissionId])
+}
+
+// User-level permission override (grant or deny specific permission to a user)
+model UserRolePermission {
+  id           String     @id @default(uuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  granted      Boolean    @default(true)  // false = explicit deny
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, permissionId])
+}
+
+// ─── Specimen Tracking (Lab Pipeline) ────────────────────────────────────────
+
+model Specimen {
+  id          String         @id @default(uuid())
+  barcode     String         @unique @default(cuid())
+  labOrderId  String
+  labOrder    LabOrder       @relation(fields: [labOrderId], references: [id])
+  type        String         // BLOOD | URINE | TISSUE | SWAB | etc.
+  collectedAt DateTime?
+  collectedBy String?
+  status      SpecimenStatus @default(COLLECTED)
+  rejectionReason String?
+  receivedAt  DateTime?
+  resultedAt  DateTime?
+  createdAt   DateTime       @default(now())
+
+  trackingLogs SpecimenLog[]
+}
+
+model SpecimenLog {
+  id         String   @id @default(uuid())
+  specimenId String
+  specimen   Specimen @relation(fields: [specimenId], references: [id])
+  status     SpecimenStatus
+  note       String?
+  performedBy String?
+  createdAt  DateTime @default(now())
+}
+
+// ─── Saga / Compensation Log ──────────────────────────────────────────────────
+
+model SagaLog {
+  id          String   @id @default(uuid())
+  sagaId      String   // correlation id for multi-step saga
+  sessionId   String?
+  step        String   // step name e.g. "ALLOCATE_BED", "CREATE_BILL"
+  status      String   // PENDING | SUCCESS | FAILED | COMPENSATED
+  payload     Json?
+  error       String?
+  compensated Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}

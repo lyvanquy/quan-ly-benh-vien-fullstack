@@ -1,0 +1,74 @@
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import 'dotenv/config';
+
+import authRoutes from './routes/auth.routes';
+import patientRoutes from './routes/patient.routes';
+import doctorRoutes from './routes/doctor.routes';
+import appointmentRoutes from './routes/appointment.routes';
+import medicalRecordRoutes from './routes/medicalRecord.routes';
+import medicineRoutes from './routes/medicine.routes';
+import billRoutes from './routes/bill.routes';
+import dashboardRoutes from './routes/dashboard.routes';
+import workflowRoutes from './routes/workflow.routes';
+import dialogRoutes from './routes/dialog.routes';
+import labRoutes from './routes/lab.routes';
+import pharmacyRoutes from './routes/pharmacy.routes';
+import staffRoutes from './routes/staff.routes';
+import inventoryRoutes from './routes/inventory.routes';
+import encounterRoutes from './routes/encounter.routes';
+import bedRoutes from './routes/bed.routes';
+import surgeryRoutes from './routes/surgery.routes';
+import insuranceRoutes from './routes/insurance.routes';
+import permissionRoutes from './routes/permission.routes';
+import referralRoutes from './routes/referral.routes';
+import consentRoutes from './routes/consent.routes';
+import telemedicineRoutes from './routes/telemedicine.routes';
+import equipmentRoutes from './routes/equipment.routes';
+import procurementRoutes from './routes/procurement.routes';
+import notificationRoutes from './routes/notification.routes';
+import nodeRoutes, { optionRouter, actionRouter } from './routes/node.routes';
+import searchRoutes from './routes/search.routes';
+import timelineRoutes from './routes/timeline.routes';
+
+const app = express();
+
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }));
+app.use(express.json());
+app.use(morgan('dev'));
+
+app.get('/healthz', (_req, res) => res.json({ status: 'ok', ts: new Date() }));
+
+app.use('/api/auth', authRoutes);
+app.use('/api/patients', patientRoutes);
+app.use('/api/doctors', doctorRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/records', medicalRecordRoutes);
+app.use('/api/medicines', medicineRoutes);
+app.use('/api/bills', billRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/workflows', workflowRoutes);
+app.use('/api/dialogs', dialogRoutes);
+app.use('/api/lab', labRoutes);
+app.use('/api/pharmacy', pharmacyRoutes);
+app.use('/api/staff', staffRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/encounters', encounterRoutes);
+app.use('/api/beds', bedRoutes);
+app.use('/api/surgery', surgeryRoutes);
+app.use('/api/insurance', insuranceRoutes);
+app.use('/api/permissions', permissionRoutes);
+app.use('/api/referrals', referralRoutes);
+app.use('/api/consent', consentRoutes);
+app.use('/api/telemedicine', telemedicineRoutes);
+app.use('/api/equipment', equipmentRoutes);
+app.use('/api/procurement', procurementRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/nodes', nodeRoutes);
+app.use('/api/options', optionRouter);
+app.use('/api/actions', actionRouter);
+app.use('/api/search', searchRoutes);
+app.use('/api/timeline', timelineRoutes);
+
+export default app;

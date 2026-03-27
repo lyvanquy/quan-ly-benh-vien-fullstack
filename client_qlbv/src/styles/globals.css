@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body {
+    @apply bg-surface text-gray-900 font-sans;
+    min-height: 100vh;
+  }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-gray-200 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-gray-300; }
+  ::selection { @apply bg-primary-100 text-primary-700; }
+}
+
+@layer components {
+
+  /* ── Buttons ─────────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-gradient-to-b from-primary-400 to-primary-600 text-white
+           px-4 py-2 rounded-xl font-semibold text-sm
+           hover:from-primary-500 hover:to-primary-700
+           active:scale-[.98]
+           transition-all duration-150
+           shadow-[0_1px_3px_rgb(14_165_233/.4),inset_0_1px_0_rgb(255_255_255/.15)]
+           hover:shadow-[0_4px_12px_rgb(14_165_233/.35)]
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:scale-100;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-white text-gray-700 border border-gray-200
+           px-4 py-2 rounded-xl font-medium text-sm
+           hover:bg-gray-50 hover:border-gray-300
+           active:scale-[.98]
+           transition-all duration-150
+           shadow-[0_1px_2px_rgb(0_0_0/.06)]
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2
+           bg-gradient-to-b from-red-400 to-red-600 text-white
+           px-4 py-2 rounded-xl font-semibold text-sm
+           hover:from-red-500 hover:to-red-700
+           active:scale-[.98] transition-all duration-150
+           shadow-[0_1px_3px_rgb(239_68_68/.4)];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           text-gray-500 px-3 py-2 rounded-xl font-medium text-sm
+           hover:bg-gray-100 hover:text-gray-700
+           transition-all duration-150;
+  }
+
+  .btn-icon {
+    @apply inline-flex items-center justify-center
+           w-8 h-8 rounded-lg text-gray-400
+           hover:bg-gray-100 hover:text-gray-600
+           transition-all duration-150;
+  }
+
+  /* ── Cards ───────────────────────────────────────────────────────────── */
+  .card {
+    @apply bg-white rounded-2xl border border-gray-100/80 p-6
+           shadow-[0_1px_4px_rgb(0_0_0/.05),0_0_0_1px_rgb(0_0_0/.03)];
+  }
+
+  .card-hover {
+    @apply card cursor-pointer
+           hover:shadow-[0_8px_24px_rgb(0_0_0/.08),0_0_0_1px_rgb(0_0_0/.04)]
+           hover:-translate-y-0.5
+           transition-all duration-200;
+  }
+
+  .card-glass {
+    @apply rounded-2xl border border-white/30 p-6 backdrop-blur-xl;
+    background: rgba(255,255,255,.88);
+    box-shadow: 0 8px 32px rgb(0 0 0 / .08), inset 0 1px 0 rgb(255 255 255 / .6);
+  }
+
+  /* ── Inputs ──────────────────────────────────────────────────────────── */
+  .input {
+    @apply w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5
+           text-sm text-gray-900 placeholder-gray-400
+           focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400
+           transition-all duration-150;
+    box-shadow: 0 1px 2px rgb(0 0 0 / .04), inset 0 1px 2px rgb(0 0 0 / .03);
+  }
+
+  .input-sm { @apply input py-1.5 text-xs; }
+
+  .label {
+    @apply block text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1.5;
+  }
+
+  /* ── Badges ──────────────────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-pending   { @apply badge bg-amber-50   text-amber-700   ring-1 ring-amber-200/80; }
+  .badge-confirmed { @apply badge bg-blue-50    text-blue-700    ring-1 ring-blue-200/80; }
+  .badge-completed { @apply badge bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/80; }
+  .badge-cancelled { @apply badge bg-red-50     text-red-700     ring-1 ring-red-200/80; }
+  .badge-info      { @apply badge bg-sky-50     text-sky-700     ring-1 ring-sky-200/80; }
+  .badge-warning   { @apply badge bg-orange-50  text-orange-700  ring-1 ring-orange-200/80; }
+
+  /* ── Skeleton ────────────────────────────────────────────────────────── */
+  .skeleton {
+    @apply rounded-lg bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 animate-shimmer;
+    background-size: 200% 100%;
+  }
+
+  /* ── Page header ─────────────────────────────────────────────────────── */
+  .page-header { @apply flex items-center justify-between mb-6; }
+  .page-title  { @apply text-2xl font-bold text-gray-900 tracking-tight; }
+  .page-subtitle { @apply text-sm text-gray-400 mt-0.5; }
+
+  /* ── Table ───────────────────────────────────────────────────────────── */
+  .table-wrapper { @apply overflow-x-auto rounded-2xl border border-gray-100; }
+  .table-base { @apply w-full text-sm; }
+  .table-base thead tr { @apply bg-gray-50/80 border-b border-gray-100; }
+  .table-base thead th {
+    @apply px-4 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-widest;
+  }
+  .table-base tbody tr {
+    @apply border-b border-gray-50 hover:bg-primary-50/40 transition-colors duration-100;
+  }
+  .table-base tbody td { @apply px-4 py-3; }
+
+  /* ── Stat number ─────────────────────────────────────────────────────── */
+  .stat-value { @apply text-3xl font-extrabold text-gray-900 leading-none tracking-tight; }
+
+  /* ── Divider ─────────────────────────────────────────────────────────── */
+  .divider { @apply border-t border-gray-100 my-4; }
+}
+
+/* ── Recharts ────────────────────────────────────────────────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 16px rgb(0 0 0 / .08) !important;
+  font-size: 12px !important;
+}
+
+/* ── ReactFlow ───────────────────────────────────────────────────────────── */
+.react-flow__node { font-family: 'Inter', sans-serif !important; }
+.react-flow__controls {
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgb(0 0 0 / .08) !important;
+}
