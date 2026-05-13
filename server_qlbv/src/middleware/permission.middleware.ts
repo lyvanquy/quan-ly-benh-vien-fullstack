@@ -55,13 +55,20 @@ export async function hasPermission(
   const rolePerms = await getRolePermissions(user.role);
   if (rolePerms.has(permKey)) return true;
 
+  // Resolve permission id by key once so user-level override lookup is correct.
+  const permRecord = await (prisma as never as {
+    permission: { findUnique: (a: unknown) => Promise<{ id: string; condition: string | null } | null> };
+  }).permission.findUnique({ where: { key: permKey } });
+
+  if (!permRecord) return false;
+
   // 2. User-level override
   const override = await (prisma as never as {
     userRolePermission: {
       findUnique: (a: unknown) => Promise<{ granted: boolean; permission: { condition: string | null } } | null>;
     };
   }).userRolePermission.findUnique({
-    where: { userId_permissionId: { userId: user.id, permissionId: permKey } } as never,
+    where: { userId_permissionId: { userId: user.id, permissionId: permRecord.id } } as never,
     include: { permission: true },
   });
 
@@ -75,12 +82,8 @@ export async function hasPermission(
   }
 
   // 3. ABAC fallback: load permission and check condition
-  const perm = await (prisma as never as {
-    permission: { findUnique: (a: unknown) => Promise<{ condition: string | null } | null> };
-  }).permission.findUnique({ where: { key: permKey } });
-
-  if (perm?.condition) {
-    return evalAbacCondition(perm.condition, user, ctx);
+  if (permRecord.condition) {
+    return evalAbacCondition(permRecord.condition, user, ctx);
   }
 
   return false;
