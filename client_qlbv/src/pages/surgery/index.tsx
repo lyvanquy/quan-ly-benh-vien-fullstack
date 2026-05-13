@@ -12,8 +12,8 @@ const STATUS_COLOR: Record<string, string> = {
   COMPLETED: 'bg-green-100 text-green-700', CANCELLED: 'bg-red-100 text-red-700',
 };
 const STATUS_LABEL: Record<string, string> = {
-  SCHEDULED: 'Da len lich', IN_PROGRESS: 'Dang phau thuat',
-  COMPLETED: 'Hoan thanh', CANCELLED: 'Huy',
+  SCHEDULED: 'Đã lên lịch', IN_PROGRESS: 'Dang phau thuat',
+  COMPLETED: 'Hoàn thành', CANCELLED: 'Hủy',
 };
 
 export default function SurgeryPage() {
@@ -40,7 +40,7 @@ export default function SurgeryPage() {
 
   const NEXT_STATUS: Record<string, { label: string; next: string; cls: string }> = {
     SCHEDULED: { label: 'Bat dau PT', next: 'IN_PROGRESS', cls: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100' },
-    IN_PROGRESS: { label: 'Hoan thanh', next: 'COMPLETED', cls: 'bg-green-50 text-green-700 hover:bg-green-100' },
+    IN_PROGRESS: { label: 'Hoàn thành', next: 'COMPLETED', cls: 'bg-green-50 text-green-700 hover:bg-green-100' },
   };
 
   const updateStatus = useMutation(
@@ -53,21 +53,21 @@ export default function SurgeryPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Lich phau thuat</h1>
-          <p className="text-gray-500 text-sm mt-1">Quan ly phong mo va lich phau thuat</p>
+          <p className="text-gray-500 text-sm mt-1">Quan ly phong mo va lịch phẫu thuật</p>
         </div>
         <button onClick={() => setOpen(true)} className="btn-primary flex items-center gap-2">
-          <Plus size={16} /> Len lich PT
+          <Plus size={16} /> Lên lịch PT
         </button>
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center h-40 text-gray-400">Dang tai...</div>
+        <div className="flex items-center justify-center h-40 text-gray-400">Đang tải...</div>
       ) : (
         <div className="card overflow-hidden p-0">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {['Benh nhan', 'Thu thuat', 'Bac si phau thuat', 'Phong mo', 'Bat dau', 'Ket thuc', 'Trang thai', ''].map(h => (
+                {['Bệnh nhân', 'Thu thuat', 'Bác sĩ phau thuat', 'Phong mo', 'Bat dau', 'Ket thuc', 'Trang thai', ''].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-medium text-gray-600">{h}</th>
                 ))}
               </tr>
@@ -103,7 +103,7 @@ export default function SurgeryPage() {
               ))}
               {(surgeries as unknown[]).length === 0 && (
                 <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">
-                  <Scissors size={32} className="mx-auto mb-2 opacity-30" />Chua co lich phau thuat
+                  <Scissors size={32} className="mx-auto mb-2 opacity-30" />Chưa có lịch phẫu thuật
                 </td></tr>
               )}
             </tbody>
@@ -111,18 +111,18 @@ export default function SurgeryPage() {
         </div>
       )}
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Len lich phau thuat">
+      <Modal open={open} onClose={() => setOpen(false)} title="Lên lịch phau thuat">
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">Benh nhan</label>
+              <label className="label">Bệnh nhân</label>
               <select className="input" value={form.patientId} onChange={e => setForm(f => ({ ...f, patientId: e.target.value }))}>
                 <option value="">-- Chon --</option>
                 {(patients as Record<string, string>[]).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="label">Bac si phau thuat</label>
+              <label className="label">Bác sĩ phau thuat</label>
               <select className="input" value={form.surgeonId} onChange={e => setForm(f => ({ ...f, surgeonId: e.target.value }))}>
                 <option value="">-- Chon --</option>
                 {(doctors as Record<string, unknown>[]).map((d) => (
@@ -159,9 +159,9 @@ export default function SurgeryPage() {
             <input className="input" placeholder="Toan than / Tai cho / Tuy song..." value={form.anesthesiaType} onChange={e => setForm(f => ({ ...f, anesthesiaType: e.target.value }))} />
           </div>
           <div className="flex gap-3 justify-end pt-2">
-            <button className="btn-secondary" onClick={() => setOpen(false)}>Huy</button>
+            <button className="btn-secondary" onClick={() => setOpen(false)}>Hủy</button>
             <button className="btn-primary" onClick={() => create.mutate(form)} disabled={create.isLoading}>
-              {create.isLoading ? 'Dang luu...' : 'Len lich'}
+              {create.isLoading ? 'Đang lưu...' : 'Lên lịch'}
             </button>
           </div>
         </div>
@@ -169,3 +169,5 @@ export default function SurgeryPage() {
     </Layout>
   );
 }
+
+

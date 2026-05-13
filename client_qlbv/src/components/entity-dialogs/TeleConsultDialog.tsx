@@ -11,7 +11,7 @@ const STATUS_CLS: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 text-blue-700', IN_PROGRESS: 'bg-green-100 text-green-700',
   COMPLETED: 'bg-gray-100 text-gray-600', CANCELLED: 'bg-red-100 text-red-700',
 };
-const STATUS_LABEL: Record<string, string> = { SCHEDULED: 'Da len lich', IN_PROGRESS: 'Dang dien ra', COMPLETED: 'Hoan thanh', CANCELLED: 'Da huy' };
+const STATUS_LABEL: Record<string, string> = { SCHEDULED: 'Đã lên lịch', IN_PROGRESS: 'Đang diễn ra', COMPLETED: 'Hoàn thành', CANCELLED: 'Da huy' };
 
 export default function TeleConsultDialog({ frame, onClose }: Props) {
   const qc = useQueryClient();
@@ -32,7 +32,7 @@ export default function TeleConsultDialog({ frame, onClose }: Props) {
 
   const saveMut = useMutation(
     (d: typeof form) => isCreate ? api.post('/telemedicine', d) : api.put(`/telemedicine/${frame.id}`, d),
-    { onSuccess: () => { qc.invalidateQueries('teleconsults'); toast.success(isCreate ? 'Da tao lich kham tu xa' : 'Da cap nhat'); isCreate ? onClose() : setEditing(false); } }
+    { onSuccess: () => { qc.invalidateQueries('teleconsults'); toast.success(isCreate ? 'Da tao lịch khám từ xa' : 'Da cập nhật'); isCreate ? onClose() : setEditing(false); } }
   );
 
   const startMut = useMutation(
@@ -55,11 +55,11 @@ export default function TeleConsultDialog({ frame, onClose }: Props) {
           <Video size={20} className="text-white" />
         </div>
         <div className="flex-1">
-          <h2 className="text-xl font-bold text-gray-900">{isCreate ? 'Dat lich kham tu xa' : 'Kham tu xa'}</h2>
+          <h2 className="text-xl font-bold text-gray-900">{isCreate ? 'Dat lịch khám từ xa' : 'Kham tu xa'}</h2>
           {consult && <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_CLS[consult.status] || 'bg-gray-100 text-gray-600'}`}>{STATUS_LABEL[consult.status] || consult.status}</span>}
         </div>
         {!isCreate && !editing && consult?.status === 'SCHEDULED' && (
-          <button onClick={() => setEditing(true)} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1"><Edit2 size={12} /> Sua</button>
+          <button onClick={() => setEditing(true)} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1"><Edit2 size={12} /> Sửa</button>
         )}
       </div>
 
@@ -67,9 +67,9 @@ export default function TeleConsultDialog({ frame, onClose }: Props) {
         <div className="space-y-3">
           {isCreate && (
             <>
-              <div><label className="label">ID Benh nhan *</label>
+              <div><label className="label">ID Bệnh nhân *</label>
                 <input className="input" value={form.patientId} onChange={e => setForm(f => ({ ...f, patientId: e.target.value }))} /></div>
-              <div><label className="label">ID Bac si *</label>
+              <div><label className="label">ID Bác sĩ *</label>
                 <input className="input" value={form.doctorId} onChange={e => setForm(f => ({ ...f, doctorId: e.target.value }))} /></div>
             </>
           )}
@@ -78,17 +78,17 @@ export default function TeleConsultDialog({ frame, onClose }: Props) {
           <div><label className="label">Ghi chu</label>
             <textarea className="input" rows={2} value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} /></div>
           <div className="flex gap-3 justify-end pt-2">
-            {!isCreate && <button onClick={() => setEditing(false)} className="btn-secondary flex items-center gap-1"><X size={12} /> Huy</button>}
+            {!isCreate && <button onClick={() => setEditing(false)} className="btn-secondary flex items-center gap-1"><X size={12} /> Hủy</button>}
             <button onClick={() => saveMut.mutate(form)} disabled={saveMut.isLoading} className="btn-primary flex items-center gap-1">
-              <Save size={12} /> {saveMut.isLoading ? 'Dang luu...' : 'Luu'}
+              <Save size={12} /> {saveMut.isLoading ? 'Đang lưu...' : 'Lưu'}
             </button>
           </div>
         </div>
       ) : consult && (
         <div className="space-y-4">
           <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-            <Row label="Benh nhan" value={consult.patient?.name || consult.patientId} />
-            <Row label="Bac si" value={consult.doctor?.user?.name || consult.doctorId} />
+            <Row label="Bệnh nhân" value={consult.patient?.name || consult.patientId} />
+            <Row label="Bác sĩ" value={consult.doctor?.user?.name || consult.doctorId} />
             <Row label="Thoi gian" value={new Date(consult.scheduledAt).toLocaleString('vi-VN')} />
             {consult.startedAt && <Row label="Bat dau" value={new Date(consult.startedAt).toLocaleString('vi-VN')} />}
             {consult.endedAt && <Row label="Ket thuc" value={new Date(consult.endedAt).toLocaleString('vi-VN')} />}
@@ -128,3 +128,6 @@ function Row({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+
+

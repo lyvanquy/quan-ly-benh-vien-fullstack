@@ -14,7 +14,7 @@ interface Props<T> {
 }
 
 export default function Table<T extends Record<string, unknown>>({
-  columns, data, loading, emptyText = 'Khong co du lieu',
+  columns, data, loading, emptyText = 'Không có dữ liệu',
 }: Props<T>) {
   return (
     <div className="table-wrapper">
@@ -59,3 +59,4 @@ export default function Table<T extends Record<string, unknown>>({
     </div>
   );
 }
+

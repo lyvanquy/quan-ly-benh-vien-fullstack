@@ -25,7 +25,7 @@ export default function MedicinesPage() {
 
   const createMutation = useMutation(
     (d: MedicineForm) => api.post('/medicines', { ...d, price: Number(d.price), stock: Number(d.stock) }),
-    { onSuccess: () => { qc.invalidateQueries('medicines'); toast.success('Them thuoc thanh cong'); setShowModal(false); reset(); } }
+    { onSuccess: () => { qc.invalidateQueries('medicines'); toast.success('Thêm thuoc thanh cong'); setShowModal(false); reset(); } }
   );
 
   const columns = [
@@ -101,3 +101,5 @@ export default function MedicinesPage() {
     </Layout>
   );
 }
+
+

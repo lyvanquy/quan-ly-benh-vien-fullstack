@@ -37,23 +37,23 @@ export default function EquipmentPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Wrench className="text-primary" size={24} />
-          <h1 className="text-2xl font-bold text-gray-900">Quan ly thiet bi</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Quan ly thiết bị</h1>
         </div>
         <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
-          <Plus size={16} /> Them thiet bi
+          <Plus size={16} /> Thêm thiết bị
         </button>
       </div>
 
       <div className="card overflow-hidden p-0">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>{['Ma', 'Ten thiet bi', 'Danh muc', 'Vi tri', 'Trang thai', 'Bao tri cuoi', 'Bao tri tiep theo', 'Hanh dong'].map(h => (
+            <tr>{['Ma', 'Ten thiết bị', 'Danh muc', 'Vi tri', 'Trang thai', 'Bao tri cuoi', 'Bao tri tiep theo', 'Hanh dong'].map(h => (
               <th key={h} className="px-4 py-3 text-left font-medium text-gray-600">{h}</th>
             ))}</tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {isLoading ? (
-              <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Dang tai...</td></tr>
+              <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Đang tải...</td></tr>
             ) : equipments.map((e: Record<string, unknown>) => {
               const nextService = e.nextService ? new Date(e.nextService as string) : null;
               const isDue = nextService && nextService < new Date();
@@ -85,17 +85,17 @@ export default function EquipmentPage() {
               );
             })}
             {!isLoading && !equipments.length && (
-              <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Chua co thiet bi</td></tr>
+              <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Chưa có thiết bị</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Them thiet bi moi">
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Thêm thiết bị moi">
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="label">Ma thiet bi</label><input className="input" value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value }))} /></div>
-            <div><label className="label">Ten thiet bi</label><input className="input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
+            <div><label className="label">Ma thiết bị</label><input className="input" value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value }))} /></div>
+            <div><label className="label">Ten thiết bị</label><input className="input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div><label className="label">Danh muc</label><input className="input" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} /></div>
@@ -110,9 +110,9 @@ export default function EquipmentPage() {
             </select>
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowModal(false)} className="btn-secondary">Huy</button>
+            <button onClick={() => setShowModal(false)} className="btn-secondary">Hủy</button>
             <button onClick={() => createMut.mutate(form)} disabled={createMut.isLoading} className="btn-primary">
-              {createMut.isLoading ? 'Dang luu...' : 'Them'}
+              {createMut.isLoading ? 'Đang lưu...' : 'Thêm'}
             </button>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function EquipmentPage() {
             <label className="label">Loai bao tri</label>
             <select className="input" value={maintForm.type} onChange={e => setMaintForm(f => ({ ...f, type: e.target.value }))}>
               <option value="PREVENTIVE">Phong ngua</option>
-              <option value="CORRECTIVE">Sua chua</option>
+              <option value="CORRECTIVE">Sửa chữa</option>
               <option value="CALIBRATION">Hieu chuan</option>
             </select>
           </div>
@@ -134,10 +134,10 @@ export default function EquipmentPage() {
             <div><label className="label">Chi phi (VND)</label><input type="number" className="input" value={maintForm.cost} onChange={e => setMaintForm(f => ({ ...f, cost: e.target.value }))} /></div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setMaintModal(null)} className="btn-secondary">Huy</button>
+            <button onClick={() => setMaintModal(null)} className="btn-secondary">Hủy</button>
             <button onClick={() => maintModal && maintMut.mutate({ id: maintModal, data: maintForm })}
               disabled={maintMut.isLoading} className="btn-primary">
-              {maintMut.isLoading ? 'Dang luu...' : 'Luu'}
+              {maintMut.isLoading ? 'Đang lưu...' : 'Lưu'}
             </button>
           </div>
         </div>
@@ -145,3 +145,6 @@ export default function EquipmentPage() {
     </Layout>
   );
 }
+
+
+

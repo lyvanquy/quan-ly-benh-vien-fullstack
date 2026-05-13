@@ -16,13 +16,13 @@ const STATUS_COLOR: Record<string, string> = {
   PAID: 'bg-green-100 text-green-700', PARTIAL: 'bg-yellow-100 text-yellow-700',
 };
 
-const TABS = ['Tong quan', 'Dot dieu tri', 'Xet nghiem', 'Hoa don', 'Lich su kham'] as const;
+const TABS = ['Tổng quan', 'Đợt điều trị', 'Xét nghiệm', 'Hóa đơn', 'Lịch sử khám'] as const;
 type Tab = typeof TABS[number];
 
 export default function PatientDetailPage() {
   const router = useRouter();
   const { id } = router.query;
-  const [tab, setTab] = useState<Tab>('Tong quan');
+  const [tab, setTab] = useState<Tab>('Tổng quan');
 
   const { data: patient, isLoading } = useQuery(
     ['patient', id],
@@ -33,23 +33,23 @@ export default function PatientDetailPage() {
   const { data: encountersData } = useQuery(
     ['patient-encounters', id],
     () => api.get('/encounters', { params: { patientId: id, limit: 20 } }).then(r => r.data.data),
-    { enabled: !!id && tab === 'Dot dieu tri' }
+    { enabled: !!id && tab === 'Đợt điều trị' }
   );
 
   const { data: labData } = useQuery(
     ['patient-labs', id],
     () => api.get('/lab/orders', { params: { patientId: id, limit: 20 } }).then(r => r.data.data),
-    { enabled: !!id && tab === 'Xet nghiem' }
+    { enabled: !!id && tab === 'Xét nghiệm' }
   );
 
   const { data: billsData } = useQuery(
     ['patient-bills', id],
     () => api.get('/bills', { params: { patientId: id } }).then(r => r.data.data),
-    { enabled: !!id && tab === 'Hoa don' }
+    { enabled: !!id && tab === 'Hóa đơn' }
   );
 
-  if (isLoading) return <Layout><div className="flex items-center justify-center h-64 text-gray-400">Dang tai...</div></Layout>;
-  if (!patient) return <Layout><div className="text-center py-20 text-gray-400">Khong tim thay benh nhan</div></Layout>;
+  if (isLoading) return <Layout><div className="flex items-center justify-center h-64 text-gray-400">Đang tải...</div></Layout>;
+  if (!patient) return <Layout><div className="text-center py-20 text-gray-400">Không tìm thấy benh nhan</div></Layout>;
 
   const encounters = encountersData?.encounters || [];
   const labOrders = labData?.orders || [];
@@ -88,16 +88,16 @@ export default function PatientDetailPage() {
         ))}
       </div>
 
-      {/* Tab: Tong quan */}
-      {tab === 'Tong quan' && (
+      {/* Tab: Tổng quan */}
+      {tab === 'Tổng quan' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="card">
-            <h3 className="font-semibold mb-4 flex items-center gap-2"><User size={16} /> Thong tin ca nhan</h3>
+            <h3 className="font-semibold mb-4 flex items-center gap-2"><User size={16} /> Thông tin ca nhan</h3>
             <div className="space-y-3 text-sm">
-              <Row label="Gioi tinh" value={patient.gender === 'MALE' ? 'Nam' : patient.gender === 'FEMALE' ? 'Nu' : 'Khac'} />
-              <Row label="Ngay sinh" value={format(new Date(patient.dob), 'dd/MM/yyyy')} />
+              <Row label="Giới tính" value={patient.gender === 'MALE' ? 'Nam' : patient.gender === 'FEMALE' ? 'Nữ' : 'Khác'} />
+              <Row label="Ngày sinh" value={format(new Date(patient.dob), 'dd/MM/yyyy')} />
               <Row label="So dien thoai" value={patient.phone} icon={<Phone size={13} />} />
-              {patient.address && <Row label="Dia chi" value={patient.address} icon={<MapPin size={13} />} />}
+              {patient.address && <Row label="Địa chỉ" value={patient.address} icon={<MapPin size={13} />} />}
               {patient.bloodType && <Row label="Nhom mau" value={patient.bloodType} icon={<Droplets size={13} />} />}
               {patient.email && <Row label="Email" value={patient.email} />}
               {patient.insuranceId && <Row label="So BHYT" value={patient.insuranceId} />}
@@ -106,11 +106,11 @@ export default function PatientDetailPage() {
           </div>
 
           <div className="card">
-            <h3 className="font-semibold mb-4 flex items-center gap-2"><Heart size={16} /> Thong tin y te</h3>
+            <h3 className="font-semibold mb-4 flex items-center gap-2"><Heart size={16} /> Thông tin y te</h3>
             <div className="space-y-3 text-sm">
               {patient.allergies && <Row label="Di ung" value={patient.allergies} className="text-red-600" />}
               {patient.chronicDiseases && <Row label="Benh man tinh" value={patient.chronicDiseases} />}
-              {!patient.allergies && !patient.chronicDiseases && <p className="text-gray-400">Chua co thong tin</p>}
+              {!patient.allergies && !patient.chronicDiseases && <p className="text-gray-400">Chưa có thông tin</p>}
             </div>
           </div>
 
@@ -118,10 +118,10 @@ export default function PatientDetailPage() {
             <h3 className="font-semibold mb-4">Thong ke nhanh</h3>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: 'Lich kham', value: patient.appointments?.length ?? 0, color: 'text-blue-600' },
+                { label: 'Lịch khám', value: patient.appointments?.length ?? 0, color: 'text-blue-600' },
                 { label: 'Ho so BA', value: patient.medicalRecords?.length ?? 0, color: 'text-green-600' },
-                { label: 'Dot dieu tri', value: patient.encounters?.length ?? 0, color: 'text-purple-600' },
-                { label: 'Hoa don', value: patient.bills?.length ?? 0, color: 'text-yellow-600' },
+                { label: 'Đợt điều trị', value: patient.encounters?.length ?? 0, color: 'text-purple-600' },
+                { label: 'Hóa đơn', value: patient.bills?.length ?? 0, color: 'text-yellow-600' },
               ].map(s => (
                 <div key={s.label} className="bg-gray-50 rounded-lg p-3 text-center">
                   <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
@@ -133,9 +133,9 @@ export default function PatientDetailPage() {
 
           {/* Recent appointments */}
           <div className="card lg:col-span-3">
-            <h3 className="font-semibold mb-4">Lich su kham gan day</h3>
+            <h3 className="font-semibold mb-4">Lịch sử khám gan day</h3>
             {!patient.appointments?.length ? (
-              <p className="text-gray-400 text-sm">Chua co lich kham</p>
+              <p className="text-gray-400 text-sm">Chưa có lich kham</p>
             ) : (
               <div className="space-y-2">
                 {patient.appointments.slice(0, 5).map((a: Record<string, unknown>) => (
@@ -153,12 +153,12 @@ export default function PatientDetailPage() {
         </div>
       )}
 
-      {/* Tab: Dot dieu tri */}
-      {tab === 'Dot dieu tri' && (
+      {/* Tab: Đợt điều trị */}
+      {tab === 'Đợt điều trị' && (
         <div className="card overflow-hidden p-0">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>{['Ma dot', 'Loai', 'Trang thai', 'Khoa', 'Ngay vao', 'Ngay ra'].map(h => (
+              <tr>{['Ma dot', 'Loai', 'Trang thai', 'Khoa', 'Ngày vao', 'Ngày ra'].map(h => (
                 <th key={h} className="px-4 py-3 text-left font-medium text-gray-600">{h}</th>
               ))}</tr>
             </thead>
@@ -173,23 +173,23 @@ export default function PatientDetailPage() {
                   <td className="px-4 py-3 text-gray-500">{e.dischargeDate ? format(new Date(e.dischargeDate as string), 'dd/MM/yyyy') : '-'}</td>
                 </tr>
               ))}
-              {!encounters.length && <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400"><Stethoscope size={28} className="mx-auto mb-2 opacity-30" />Chua co dot dieu tri</td></tr>}
+              {!encounters.length && <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400"><Stethoscope size={28} className="mx-auto mb-2 opacity-30" />Chưa có dot dieu tri</td></tr>}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* Tab: Xet nghiem */}
-      {tab === 'Xet nghiem' && (
+      {/* Tab: Xét nghiệm */}
+      {tab === 'Xét nghiệm' && (
         <div className="space-y-4">
           {!labOrders.length ? (
-            <div className="card flex flex-col items-center py-12 text-gray-400"><FlaskConical size={32} className="mb-2 opacity-30" />Chua co xet nghiem</div>
+            <div className="card flex flex-col items-center py-12 text-gray-400"><FlaskConical size={32} className="mb-2 opacity-30" />Chưa có xét nghiệm</div>
           ) : labOrders.map((order: Record<string, unknown>) => (
             <div key={order.id as string} className="card">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <p className="font-medium text-sm">{format(new Date(order.createdAt as string), 'dd/MM/yyyy HH:mm')}</p>
-                  {order.note && <p className="text-xs text-gray-500">{order.note as string}</p>}
+                  {Boolean(order.note) && <p className="text-xs text-gray-500">{String(order.note)}</p>}
                 </div>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLOR[order.status as string] || 'bg-gray-100 text-gray-600'}`}>{order.status as string}</span>
               </div>
@@ -199,9 +199,9 @@ export default function PatientDetailPage() {
                     <span>{(item.test as Record<string, string>)?.name}</span>
                     <div className="flex items-center gap-3">
                       {item.result ? (
-                        <span className={`font-medium ${item.isAbnormal ? 'text-red-600' : 'text-green-600'}`}>
+                        <span className={`font-medium ${Boolean(item.isAbnormal) ? 'text-red-600' : 'text-green-600'}`}>
                           {item.result as string} {item.unit as string}
-                          {item.isAbnormal && ' ⚠'}
+                          {Boolean(item.isAbnormal) && ' ⚠'}
                         </span>
                       ) : <span className="text-gray-400">Cho ket qua</span>}
                     </div>
@@ -213,12 +213,12 @@ export default function PatientDetailPage() {
         </div>
       )}
 
-      {/* Tab: Hoa don */}
-      {tab === 'Hoa don' && (
+      {/* Tab: Hóa đơn */}
+      {tab === 'Hóa đơn' && (
         <div className="card overflow-hidden p-0">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>{['Ma HD', 'Tong tien', 'Giam gia', 'Thanh toan', 'Trang thai', 'Ngay tao'].map(h => (
+              <tr>{['Ma HD', 'Tong tien', 'Giam gia', 'Thanh toan', 'Trang thai', 'Ngày tao'].map(h => (
                 <th key={h} className="px-4 py-3 text-left font-medium text-gray-600">{h}</th>
               ))}</tr>
             </thead>
@@ -233,17 +233,17 @@ export default function PatientDetailPage() {
                   <td className="px-4 py-3 text-gray-500">{format(new Date(b.createdAt as string), 'dd/MM/yyyy')}</td>
                 </tr>
               ))}
-              {!(bills as unknown[]).length && <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400"><Receipt size={28} className="mx-auto mb-2 opacity-30" />Chua co hoa don</td></tr>}
+              {!(bills as unknown[]).length && <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400"><Receipt size={28} className="mx-auto mb-2 opacity-30" />Chưa có hóa đơn</td></tr>}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* Tab: Lich su kham */}
-      {tab === 'Lich su kham' && (
+      {/* Tab: Lịch sử khám */}
+      {tab === 'Lịch sử khám' && (
         <div className="space-y-3">
           {!patient.medicalRecords?.length ? (
-            <div className="card flex flex-col items-center py-12 text-gray-400">Chua co ho so benh an</div>
+            <div className="card flex flex-col items-center py-12 text-gray-400">Chưa có hồ sơ bệnh án</div>
           ) : patient.medicalRecords.map((r: Record<string, unknown>) => (
             <div key={r.id as string} className="card">
               <div className="flex justify-between mb-3">
@@ -252,8 +252,8 @@ export default function PatientDetailPage() {
               </div>
               <div className="space-y-1 text-sm">
                 <p><span className="text-gray-500">Chan doan:</span> <span className="font-medium">{r.diagnosis as string}</span></p>
-                {r.treatment && <p><span className="text-gray-500">Dieu tri:</span> {String(r.treatment)}</p>}
-                {r.note && <p><span className="text-gray-500">Ghi chu:</span> {String(r.note)}</p>}
+                {Boolean(r.treatment) && <p><span className="text-gray-500">Dieu tri:</span> {String(r.treatment)}</p>}
+                {Boolean(r.note) && <p><span className="text-gray-500">Ghi chu:</span> {String(r.note)}</p>}
               </div>
               {(r.prescriptions as unknown[])?.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-gray-100">
@@ -284,3 +284,6 @@ function Row({ label, value, icon, className = '' }: { label: string; value: str
     </div>
   );
 }
+
+
+

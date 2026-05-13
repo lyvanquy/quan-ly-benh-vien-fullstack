@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Bell, CheckCheck, Info, CheckCircle, AlertTriangle, XCircle, X } from 'lucide-react';
 import { useSocket } from '@/hooks/useSocket';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
@@ -115,7 +115,7 @@ export default function NotificationBell() {
                 <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
                   <Bell size={18} className="text-gray-300" />
                 </div>
-                <p className="text-sm text-gray-400">Chua co thong bao</p>
+                <p className="text-sm text-gray-400">Chưa có thông báo</p>
               </div>
             ) : allNotifs.map(n => {
               const cfg = COLOR_MAP[n.type] || COLOR_MAP.INFO;

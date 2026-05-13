@@ -13,9 +13,9 @@ interface StaffMember {
 }
 
 const ROLE_LABEL: Record<string, string> = {
-  ADMIN: 'Quan tri', DOCTOR: 'Bac si', NURSE: 'Y ta',
+  ADMIN: 'Quan tri', DOCTOR: 'Bác sĩ', NURSE: 'Y ta',
   RECEPTIONIST: 'Le tan', ACCOUNTANT: 'Ke toan',
-  PHARMACIST: 'Duoc si', LAB_TECHNICIAN: 'KTV Xet nghiem',
+  PHARMACIST: 'Duoc si', LAB_TECHNICIAN: 'KTV Xét nghiệm',
 };
 const ROLE_COLOR: Record<string, string> = {
   ADMIN: 'bg-red-100 text-red-700', DOCTOR: 'bg-blue-100 text-blue-700',
@@ -26,7 +26,7 @@ const ROLE_COLOR: Record<string, string> = {
 const DEPT_OPTIONS = [
   'Khoa Noi tong hop', 'Khoa Tim mach', 'Khoa Ngoai tong hop', 'Khoa Nhi',
   'Khoa Cap cuu', 'Khoa Da lieu', 'Khoa Than kinh', 'Khoa San phu khoa',
-  'Phong Xet nghiem', 'Phong Duoc', 'Phong Hanh chinh', 'Ban Giam doc',
+  'Phong Xét nghiệm', 'Phong Duoc', 'Phong Hanh chinh', 'Ban Giam doc',
 ];
 
 const EMPTY_FORM = {
@@ -83,7 +83,7 @@ export default function StaffPage() {
           <p className="text-gray-500 text-sm mt-1">Quan ly nhan vien benh vien ({staff.length} nhan vien)</p>
         </div>
         <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
-          <Plus size={16} /> Them nhan vien
+          <Plus size={16} /> Thêm nhan vien
         </button>
       </div>
 
@@ -105,7 +105,7 @@ export default function StaffPage() {
       <div className="flex flex-wrap gap-3 mb-4">
         <div className="relative flex-1 min-w-[200px]">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input className="input pl-9 py-2" placeholder="Tim kiem ten, email, khoa..." value={search} onChange={e => setSearch(e.target.value)} />
+          <input className="input pl-9 py-2" placeholder="Tìm kiếm ten, email, khoa..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <div className="relative">
           <select className="input py-2 pr-8 appearance-none" value={filterRole} onChange={e => setFilterRole(e.target.value)}>
@@ -128,14 +128,14 @@ export default function StaffPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-20 text-gray-400">Dang tai...</div>
+        <div className="text-center py-20 text-gray-400">Đang tải...</div>
       ) : view === 'table' ? (
         /* ── TABLE VIEW ── */
         <div className="card overflow-hidden p-0">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {['Nhan vien', 'Chuc vu', 'Khoa / Phong', 'Lien he', 'Ngay vao lam', 'Luong', 'Trang thai'].map(h => (
+                {['Nhan vien', 'Chuc vu', 'Khoa / Phong', 'Lien he', 'Ngày vao lam', 'Luong', 'Trang thai'].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-medium text-gray-600 whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -198,7 +198,7 @@ export default function StaffPage() {
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-gray-400">
                     <Users size={36} className="mx-auto mb-2 opacity-30" />
-                    {search || filterRole || filterDept ? 'Khong tim thay nhan vien phu hop' : 'Chua co nhan vien nao'}
+                    {search || filterRole || filterDept ? 'Không tìm thấy nhân viên phù hợp' : 'Chưa có nhân viên nào'}
                   </td>
                 </tr>
               )}
@@ -238,14 +238,14 @@ export default function StaffPage() {
           {filtered.length === 0 && (
             <div className="col-span-3 text-center py-16 text-gray-400">
               <Users size={36} className="mx-auto mb-2 opacity-30" />
-              Khong tim thay nhan vien
+              Không tìm thấy nhan vien
             </div>
           )}
         </div>
       )}
 
       {/* Add Staff Modal */}
-      <Modal open={showModal} onClose={() => { setShowModal(false); setForm(EMPTY_FORM); }} title="Them nhan vien moi" size="lg">
+      <Modal open={showModal} onClose={() => { setShowModal(false); setForm(EMPTY_FORM); }} title="Thêm nhan vien moi" size="lg">
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -288,7 +288,7 @@ export default function StaffPage() {
               <input className="input" placeholder="Truong khoa / Nhan vien..." value={form.position} onChange={e => setForm(f => ({ ...f, position: e.target.value }))} />
             </div>
             <div>
-              <label className="label">Ngay vao lam *</label>
+              <label className="label">Ngày vao lam *</label>
               <input type="date" className="input" value={form.joinDate} onChange={e => setForm(f => ({ ...f, joinDate: e.target.value }))} />
             </div>
           </div>
@@ -297,13 +297,13 @@ export default function StaffPage() {
             <input type="number" className="input" placeholder="8000000" value={form.salary} onChange={e => setForm(f => ({ ...f, salary: e.target.value }))} />
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => { setShowModal(false); setForm(EMPTY_FORM); }} className="btn-secondary">Huy</button>
+            <button onClick={() => { setShowModal(false); setForm(EMPTY_FORM); }} className="btn-secondary">Hủy</button>
             <button
               onClick={() => createMut.mutate(form)}
               disabled={createMut.isLoading || !form.name || !form.email || !form.password || !form.department || !form.position || !form.joinDate}
               className="btn-primary"
             >
-              {createMut.isLoading ? 'Dang luu...' : 'Them nhan vien'}
+              {createMut.isLoading ? 'Đang lưu...' : 'Thêm nhan vien'}
             </button>
           </div>
         </div>
@@ -311,3 +311,6 @@ export default function StaffPage() {
     </Layout>
   );
 }
+
+
+

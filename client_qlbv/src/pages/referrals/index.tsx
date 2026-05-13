@@ -52,20 +52,20 @@ export default function ReferralsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Chuyen vien / Chuyen khoa</h1>
         </div>
         <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
-          <Plus size={16} /> Tao phieu chuyen
+          <Plus size={16} /> Tạo phiếu chuyen
         </button>
       </div>
 
       <div className="card overflow-hidden p-0">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>{['Benh nhan', 'Bac si chuyen', 'Ly do', 'Chuyen den', 'Muc do', 'Trang thai', 'Ngay tao', 'Hanh dong'].map(h => (
+            <tr>{['Bệnh nhân', 'Bác sĩ chuyen', 'Ly do', 'Chuyen den', 'Muc do', 'Trang thai', 'Ngày tao', 'Hanh dong'].map(h => (
               <th key={h} className="px-4 py-3 text-left font-medium text-gray-600">{h}</th>
             ))}</tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {isLoading ? (
-              <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Dang tai...</td></tr>
+              <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Đang tải...</td></tr>
             ) : referrals.map((r: Record<string, unknown>) => (
               <tr key={r.id as string} className="hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium">
@@ -94,29 +94,29 @@ export default function ReferralsPage() {
                   )}
                   {r.status === 'ACCEPTED' && (
                     <button onClick={() => updateStatus.mutate({ id: r.id as string, status: 'COMPLETED' })}
-                      className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100">Hoan thanh</button>
+                      className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100">Hoàn thành</button>
                   )}
                 </td>
               </tr>
             ))}
             {!isLoading && !referrals.length && (
-              <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Chua co phieu chuyen vien</td></tr>
+              <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Chưa có phiếu chuyển viện</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Tao phieu chuyen vien">
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Tạo phiếu chuyen vien">
         <div className="space-y-4">
           <div>
-            <label className="label">Benh nhan</label>
+            <label className="label">Bệnh nhân</label>
             <select className="input" value={form.patientId} onChange={e => setForm(f => ({ ...f, patientId: e.target.value }))}>
               <option value="">-- Chon benh nhan --</option>
               {patients.map((p: Record<string, string>) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="label">Bac si chuyen</label>
+            <label className="label">Bác sĩ chuyen</label>
             <select className="input" value={form.fromDoctorId} onChange={e => setForm(f => ({ ...f, fromDoctorId: e.target.value }))}>
               <option value="">-- Chon bac si --</option>
               {doctors.map((d: Record<string, unknown>) => <option key={d.id as string} value={d.id as string}>{(d.user as Record<string, string>)?.name}</option>)}
@@ -149,9 +149,9 @@ export default function ReferralsPage() {
             <textarea className="input" rows={2} value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} />
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowModal(false)} className="btn-secondary">Huy</button>
+            <button onClick={() => setShowModal(false)} className="btn-secondary">Hủy</button>
             <button onClick={() => createMut.mutate(form)} disabled={createMut.isLoading} className="btn-primary">
-              {createMut.isLoading ? 'Dang luu...' : 'Tao phieu'}
+              {createMut.isLoading ? 'Đang lưu...' : 'Tạo phiếu'}
             </button>
           </div>
         </div>
@@ -159,3 +159,5 @@ export default function ReferralsPage() {
     </Layout>
   );
 }
+
+

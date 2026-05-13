@@ -7,6 +7,23 @@ import EntityDialogLink from '@/components/EntityDialogLink';
 import { DialogFrame } from '@/store/entityDialogStore';
 
 interface Props { frame: DialogFrame; onClose: () => void; }
+interface LabTestItem {
+  name: string;
+  category: string;
+}
+interface LabOrderItem {
+  id: string;
+  test: LabTestItem;
+  result?: string | null;
+  unit?: string | null;
+  isAbnormal: boolean;
+}
+interface LabOrderDetail {
+  createdAt: string;
+  status: string;
+  patient?: { id: string; name: string } | null;
+  items?: LabOrderItem[];
+}
 
 const STATUS_COLOR: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-700', IN_PROGRESS: 'bg-teal-100 text-teal-700',
@@ -19,7 +36,7 @@ export default function LabOrderDialog({ frame, onClose }: Props) {
   const [selectedTests, setSelectedTests] = useState<string[]>([]);
   const [note, setNote] = useState('');
 
-  const { data: order, isLoading } = useQuery(
+  const { data: order, isLoading } = useQuery<LabOrderDetail>(
     ['lab-dlg', frame.id],
     () => api.get(`/lab/orders/${frame.id}`).then(r => r.data.data),
     { enabled: !!frame.id && !isCreate }
@@ -38,10 +55,10 @@ export default function LabOrderDialog({ frame, onClose }: Props) {
       <div>
         <div className="flex items-center gap-3 mb-5">
           <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600"><FlaskConical size={20} /></div>
-          <h2 className="text-lg font-bold text-gray-900">Chi dinh xet nghiem</h2>
+          <h2 className="text-lg font-bold text-gray-900">Chỉ định xét nghiệm</h2>
         </div>
         <div className="mb-4">
-          <label className="label mb-2">Chon xet nghiem</label>
+          <label className="label mb-2">Chon xét nghiệm</label>
           <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 rounded-xl p-3">
             {tests.map((t: Record<string, string>) => (
               <label key={t.id} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
@@ -53,45 +70,45 @@ export default function LabOrderDialog({ frame, onClose }: Props) {
                 </div>
               </label>
             ))}
-            {!tests.length && <p className="text-center text-gray-400 text-sm py-4">Chua co xet nghiem</p>}
+            {!tests.length && <p className="text-center text-gray-400 text-sm py-4">Chưa có xét nghiệm</p>}
           </div>
         </div>
         <div className="mb-4"><label className="label">Ghi chu</label><textarea className="input" rows={2} value={note} onChange={e => setNote(e.target.value)} /></div>
         <div className="flex gap-3 justify-end">
-          <button onClick={onClose} className="btn-secondary">Huy</button>
+          <button onClick={onClose} className="btn-secondary">Hủy</button>
           <button onClick={() => createMut.mutate()} disabled={createMut.isLoading || !selectedTests.length} className="btn-primary">
-            {createMut.isLoading ? 'Dang luu...' : `Chi dinh (${selectedTests.length})`}
+            {createMut.isLoading ? 'Đang lưu...' : `Chỉ định (${selectedTests.length})`}
           </button>
         </div>
       </div>
     );
   }
 
-  if (isLoading) return <div className="flex items-center justify-center h-48 text-gray-400">Dang tai...</div>;
-  if (!order) return <div className="text-center py-12 text-gray-400">Khong tim thay phieu XN</div>;
+  if (isLoading) return <div className="flex items-center justify-center h-48 text-gray-400">Đang tải...</div>;
+  if (!order) return <div className="text-center py-12 text-gray-400">Không tìm thấy phieu XN</div>;
 
   return (
     <div>
       <div className="flex items-start gap-4 mb-5">
         <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 shrink-0"><FlaskConical size={22} /></div>
         <div className="flex-1">
-          <h2 className="text-lg font-bold text-gray-900">Phieu xet nghiem</h2>
+          <h2 className="text-lg font-bold text-gray-900">Phieu xét nghiệm</h2>
           <p className="text-xs text-gray-400">{format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm')}</p>
           <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLOR[order.status] || 'bg-gray-100 text-gray-600'}`}>{order.status}</span>
         </div>
       </div>
       <div className="mb-4">
-        <p className="text-xs text-gray-400 mb-1">Benh nhan</p>
+        <p className="text-xs text-gray-400 mb-1">Bệnh nhân</p>
         <EntityDialogLink entity="patient" id={order.patient?.id}>
           <p className="text-sm font-medium text-primary">{order.patient?.name}</p>
         </EntityDialogLink>
       </div>
       <div className="space-y-2">
-        {order.items?.map((item: Record<string, unknown>) => (
-          <div key={item.id as string} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+        {order.items?.map((item) => (
+          <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
             <div>
-              <p className="text-sm font-medium">{(item.test as Record<string, string>)?.name}</p>
-              <p className="text-xs text-gray-400">{(item.test as Record<string, string>)?.category}</p>
+              <p className="text-sm font-medium">{item.test?.name}</p>
+              <p className="text-xs text-gray-400">{item.test?.category}</p>
             </div>
             <div className="text-right">
               {item.result ? (
@@ -99,7 +116,7 @@ export default function LabOrderDialog({ frame, onClose }: Props) {
                   {item.isAbnormal && <AlertTriangle size={14} className="text-red-500" />}
                   {!item.isAbnormal && <CheckCircle size={14} className="text-green-500" />}
                   <span className={`text-sm font-semibold ${item.isAbnormal ? 'text-red-600' : 'text-green-600'}`}>
-                    {item.result as string} {item.unit as string}
+                    {item.result} {item.unit}
                   </span>
                 </div>
               ) : (
@@ -112,3 +129,7 @@ export default function LabOrderDialog({ frame, onClose }: Props) {
     </div>
   );
 }
+
+
+
+

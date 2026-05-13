@@ -15,39 +15,39 @@ import { useState as useLocalState } from 'react';
 
 const navGroups = [
   {
-    label: 'Lam sang',
+    label: 'Lâm sàng',
     items: [
       { href: '/dashboard',       label: 'Dashboard',       icon: LayoutDashboard },
-      { href: '/patients',        label: 'Benh nhan',       icon: Users },
-      { href: '/doctors',         label: 'Bac si',          icon: UserRound },
-      { href: '/appointments',    label: 'Lich kham',       icon: CalendarDays },
-      { href: '/encounters',      label: 'Dot dieu tri',    icon: Stethoscope },
-      { href: '/beds',            label: 'Quan ly giuong',  icon: BedDouble },
-      { href: '/medical-records', label: 'Ho so benh an',   icon: FileText },
-      { href: '/lab',             label: 'Xet nghiem',      icon: FlaskConical },
-      { href: '/surgery',         label: 'Phau thuat',      icon: Scissors },
+      { href: '/patients',        label: 'Bệnh nhân',       icon: Users },
+      { href: '/doctors',         label: 'Bác sĩ',          icon: UserRound },
+      { href: '/appointments',    label: 'Lịch khám',       icon: CalendarDays },
+      { href: '/encounters',      label: 'Đợt điều trị',    icon: Stethoscope },
+      { href: '/beds',            label: 'Quản lý giường',  icon: BedDouble },
+      { href: '/medical-records', label: 'Hồ sơ bệnh án',   icon: FileText },
+      { href: '/lab',             label: 'Xét nghiệm',      icon: FlaskConical },
+      { href: '/surgery',         label: 'Phẫu thuật',      icon: Scissors },
     ],
   },
   {
-    label: 'Dich vu',
+    label: 'Dịch vụ',
     items: [
-      { href: '/telemedicine', label: 'Kham tu xa',  icon: Video },
-      { href: '/referrals',   label: 'Chuyen vien', icon: ArrowRightLeft },
-      { href: '/consent',     label: 'Dong thuan',  icon: FileCheck },
-      { href: '/pharmacy',    label: 'Nha thuoc',   icon: Pill },
+      { href: '/telemedicine', label: 'Khám từ xa',   icon: Video },
+      { href: '/referrals',   label: 'Chuyển viện',  icon: ArrowRightLeft },
+      { href: '/consent',     label: 'Đồng thuận',   icon: FileCheck },
+      { href: '/pharmacy',    label: 'Nhà thuốc',    icon: Pill },
     ],
   },
   {
-    label: 'Quan tri',
+    label: 'Quản trị',
     items: [
-      { href: '/medicines',         label: 'Kho thuoc',  icon: Package },
-      { href: '/billing',           label: 'Thanh toan', icon: Receipt },
-      { href: '/insurance',         label: 'Bao hiem',   icon: ShieldCheck },
-      { href: '/procurement',       label: 'Mua sam',    icon: ShoppingCart },
-      { href: '/equipment',         label: 'Thiet bi',   icon: Wrench },
-      { href: '/staff',             label: 'Nhan su',    icon: UserCog },
-      { href: '/workflows',         label: 'Workflow',   icon: GitBranch },
-      { href: '/admin/permissions', label: 'Phan quyen', icon: ShieldCheck },
+      { href: '/medicines',         label: 'Kho thuốc',   icon: Package },
+      { href: '/billing',           label: 'Thanh toán',  icon: Receipt },
+      { href: '/insurance',         label: 'Bảo hiểm',   icon: ShieldCheck },
+      { href: '/procurement',       label: 'Mua sắm',    icon: ShoppingCart },
+      { href: '/equipment',         label: 'Thiết bị',   icon: Wrench },
+      { href: '/staff',             label: 'Nhân sự',    icon: UserCog },
+      { href: '/workflows',         label: 'Quy trình',  icon: GitBranch },
+      { href: '/admin/permissions', label: 'Phân quyền', icon: ShieldCheck },
     ],
   },
 ];
@@ -71,7 +71,7 @@ function NavItem({ href, label, icon: Icon, active }: { href: string; label: str
 
 function NavGroup({ label, items, router }: { label: string; items: typeof navGroups[0]['items']; router: ReturnType<typeof useRouter> }) {
   const hasActive = items.some(i => router.pathname === i.href || (i.href !== '/dashboard' && router.pathname.startsWith(i.href)));
-  const [collapsed, setCollapsed] = useLocalState(!hasActive && label !== 'Lam sang');
+  const [collapsed, setCollapsed] = useLocalState(!hasActive && label !== 'Lâm sàng');
 
   return (
     <div>
@@ -126,7 +126,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <button onClick={() => openSearch(true)}
           className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/5 text-slate-400 hover:text-slate-200 hover:bg-white/8 transition-all text-xs">
           <Search size={13} />
-          <span className="flex-1 text-left">Tim kiem...</span>
+          <span className="flex-1 text-left">Tìm kiếm...</span>
           <kbd className="text-[9px] font-mono bg-white/10 px-1.5 py-0.5 rounded text-slate-600">⌘K</kbd>
         </button>
       </div>
@@ -151,7 +151,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
         <button onClick={handleLogout}
           className="flex items-center gap-2 text-slate-600 hover:text-slate-300 text-xs w-full px-2 py-1.5 mt-0.5 rounded-xl hover:bg-white/5 transition-colors">
-          <LogOut size={13} /> Dang xuat
+          <LogOut size={13} /> Đăng xuất
         </button>
       </div>
     </aside>
@@ -197,7 +197,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <button onClick={() => openSearch(true)}
               className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all text-xs">
               <Search size={13} />
-              <span>Tim kiem</span>
+              <span>Tìm kiếm</span>
               <kbd className="text-[9px] font-mono bg-gray-200 px-1.5 py-0.5 rounded text-gray-500">⌘K</kbd>
             </button>
 

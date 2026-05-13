@@ -15,12 +15,12 @@ const STATUS_COLOR: Record<string, string> = {
   UNPAID: 'bg-red-100 text-red-700', PAID: 'bg-green-100 text-green-700',
 };
 
-const TABS = ['Tong quan', 'Lich su', 'Lich kham', 'Dot dieu tri', 'Xet nghiem', 'Hoa don'] as const;
+const TABS = ['Tổng quan', 'Lịch sử', 'Lịch khám', 'Đợt điều trị', 'Xét nghiệm', 'Hóa đơn'] as const;
 type Tab = typeof TABS[number];
 
 export default function PatientDialog({ frame, onClose }: Props) {
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab>('Tong quan');
+  const [tab, setTab] = useState<Tab>('Tổng quan');
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState<Record<string, string>>({});
 
@@ -33,25 +33,25 @@ export default function PatientDialog({ frame, onClose }: Props) {
   const { data: apptData } = useQuery(
     ['patient-dlg-appts', frame.id],
     () => api.get('/appointments', { params: { patientId: frame.id, limit: 20 } }).then(r => r.data.data),
-    { enabled: !!frame.id && tab === 'Lich kham' }
+    { enabled: !!frame.id && tab === 'Lịch khám' }
   );
 
   const { data: encounterData } = useQuery(
     ['patient-dlg-enc', frame.id],
     () => api.get('/encounters', { params: { patientId: frame.id, limit: 20 } }).then(r => r.data.data),
-    { enabled: !!frame.id && tab === 'Dot dieu tri' }
+    { enabled: !!frame.id && tab === 'Đợt điều trị' }
   );
 
   const { data: labData } = useQuery(
     ['patient-dlg-lab', frame.id],
     () => api.get('/lab/orders', { params: { patientId: frame.id, limit: 20 } }).then(r => r.data.data),
-    { enabled: !!frame.id && tab === 'Xet nghiem' }
+    { enabled: !!frame.id && tab === 'Xét nghiệm' }
   );
 
   const { data: billData } = useQuery(
     ['patient-dlg-bills', frame.id],
     () => api.get('/bills', { params: { patientId: frame.id } }).then(r => r.data.data),
-    { enabled: !!frame.id && tab === 'Hoa don' }
+    { enabled: !!frame.id && tab === 'Hóa đơn' }
   );
 
   const updateMut = useMutation(
@@ -59,8 +59,8 @@ export default function PatientDialog({ frame, onClose }: Props) {
     { onSuccess: () => { qc.invalidateQueries(['patient-dlg', frame.id]); qc.invalidateQueries('patients'); setEditing(false); } }
   );
 
-  if (isLoading) return <div className="flex items-center justify-center h-48 text-gray-400">Dang tai...</div>;
-  if (!patient) return <div className="text-center py-12 text-gray-400">Khong tim thay benh nhan</div>;
+  if (isLoading) return <div className="flex items-center justify-center h-48 text-gray-400">Đang tải...</div>;
+  if (!patient) return <div className="text-center py-12 text-gray-400">Không tìm thấy benh nhan</div>;
 
   const startEdit = () => {
     setEditForm({ name: patient.name, phone: patient.phone, address: patient.address || '', allergies: patient.allergies || '', chronicDiseases: patient.chronicDiseases || '' });
@@ -91,15 +91,15 @@ export default function PatientDialog({ frame, onClose }: Props) {
           {editing ? (
             <>
               <button onClick={() => updateMut.mutate(editForm)} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-white rounded-lg text-xs hover:bg-primary/90">
-                <Save size={12} /> Luu
+                <Save size={12} /> Lưu
               </button>
               <button onClick={() => setEditing(false)} className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs hover:bg-gray-200">
-                <X size={12} /> Huy
+                <X size={12} /> Hủy
               </button>
             </>
           ) : (
             <button onClick={startEdit} className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs hover:bg-gray-200">
-              <Edit2 size={12} /> Sua
+              <Edit2 size={12} /> Sửa
             </button>
           )}
         </div>
@@ -109,19 +109,19 @@ export default function PatientDialog({ frame, onClose }: Props) {
       <div className="flex flex-wrap gap-2 mb-5">
         <EntityDialogLink entity="appointment" mode="create" ctx={{ patientId: frame.id, patientName: patient.name }}
           className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-100 no-underline">
-          <CalendarDays size={12} /> Dat lich kham
+          <CalendarDays size={12} /> Đặt lịch khám
         </EntityDialogLink>
         <EntityDialogLink entity="encounter" mode="create" ctx={{ patientId: frame.id }}
           className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-100 no-underline">
-          <Stethoscope size={12} /> Tao dot dieu tri
+          <Stethoscope size={12} /> Tạo đợt điều trị
         </EntityDialogLink>
         <EntityDialogLink entity="lab_order" mode="create" ctx={{ patientId: frame.id }}
           className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg text-xs font-medium hover:bg-teal-100 no-underline">
-          <FlaskConical size={12} /> Chi dinh XN
+          <FlaskConical size={12} /> Chỉ định XN
         </EntityDialogLink>
         <EntityDialogLink entity="bill" mode="create" ctx={{ patientId: frame.id }}
           className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-50 text-yellow-700 rounded-lg text-xs font-medium hover:bg-yellow-100 no-underline">
-          <Receipt size={12} /> Tao hoa don
+          <Receipt size={12} /> Tạo hóa đơn
         </EntityDialogLink>
       </div>
 
@@ -135,15 +135,15 @@ export default function PatientDialog({ frame, onClose }: Props) {
         ))}
       </div>
 
-      {/* Tab: Tong quan */}
-      {tab === 'Tong quan' && (
+      {/* Tab: Tổng quan */}
+      {tab === 'Tổng quan' && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-gray-50 rounded-xl p-4">
               <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-1.5"><User size={12} /> Ca nhan</h4>
               <div className="space-y-2 text-sm">
-                <Row label="Gioi tinh" value={patient.gender === 'MALE' ? 'Nam' : patient.gender === 'FEMALE' ? 'Nu' : 'Khac'} />
-                <Row label="Ngay sinh" value={format(new Date(patient.dob), 'dd/MM/yyyy')} />
+                <Row label="Giới tính" value={patient.gender === 'MALE' ? 'Nam' : patient.gender === 'FEMALE' ? 'Nữ' : 'Khác'} />
+                <Row label="Ngày sinh" value={format(new Date(patient.dob), 'dd/MM/yyyy')} />
                 {editing ? (
                   <div className="flex items-center gap-2">
                     <span className="text-gray-400 text-xs w-20">SDT:</span>
@@ -154,11 +154,11 @@ export default function PatientDialog({ frame, onClose }: Props) {
                 )}
                 {editing ? (
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-400 text-xs w-20">Dia chi:</span>
+                    <span className="text-gray-400 text-xs w-20">Địa chỉ:</span>
                     <input className="input text-xs py-1" value={editForm.address} onChange={e => setEditForm(f => ({ ...f, address: e.target.value }))} />
                   </div>
                 ) : patient.address ? (
-                  <Row label="Dia chi" value={patient.address} icon={<MapPin size={11} />} />
+                  <Row label="Địa chỉ" value={patient.address} icon={<MapPin size={11} />} />
                 ) : null}
                 {patient.bloodType && <Row label="Nhom mau" value={patient.bloodType} icon={<Droplets size={11} />} />}
                 {patient.insuranceId && <Row label="BHYT" value={patient.insuranceId} />}
@@ -182,7 +182,7 @@ export default function PatientDialog({ frame, onClose }: Props) {
                   <>
                     {patient.allergies && <Row label="Di ung" value={patient.allergies} className="text-red-600" />}
                     {patient.chronicDiseases && <Row label="Man tinh" value={patient.chronicDiseases} />}
-                    {!patient.allergies && !patient.chronicDiseases && <p className="text-gray-400 text-xs">Chua co thong tin</p>}
+                    {!patient.allergies && !patient.chronicDiseases && <p className="text-gray-400 text-xs">Chưa có thông tin</p>}
                   </>
                 )}
               </div>
@@ -191,10 +191,10 @@ export default function PatientDialog({ frame, onClose }: Props) {
           {/* Stats */}
           <div className="grid grid-cols-4 gap-3">
             {[
-              { label: 'Lich kham', value: patient.appointments?.length ?? 0, color: 'text-blue-600', tab: 'Lich kham' as Tab },
-              { label: 'Dot dieu tri', value: patient.encounters?.length ?? 0, color: 'text-purple-600', tab: 'Dot dieu tri' as Tab },
-              { label: 'Xet nghiem', value: patient.labOrders?.length ?? 0, color: 'text-teal-600', tab: 'Xet nghiem' as Tab },
-              { label: 'Hoa don', value: patient.bills?.length ?? 0, color: 'text-yellow-600', tab: 'Hoa don' as Tab },
+              { label: 'Lịch khám', value: patient.appointments?.length ?? 0, color: 'text-blue-600', tab: 'Lịch khám' as Tab },
+              { label: 'Đợt điều trị', value: patient.encounters?.length ?? 0, color: 'text-purple-600', tab: 'Đợt điều trị' as Tab },
+              { label: 'Xét nghiệm', value: patient.labOrders?.length ?? 0, color: 'text-teal-600', tab: 'Xét nghiệm' as Tab },
+              { label: 'Hóa đơn', value: patient.bills?.length ?? 0, color: 'text-yellow-600', tab: 'Hóa đơn' as Tab },
             ].map(s => (              <button key={s.label} onClick={() => setTab(s.tab)}
                 className="bg-gray-50 rounded-xl p-3 text-center hover:bg-gray-100 transition-colors">
                 <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
@@ -205,13 +205,13 @@ export default function PatientDialog({ frame, onClose }: Props) {
         </div>
       )}
 
-      {/* Tab: Lich kham */}
-      {tab === 'Lich kham' && (
+      {/* Tab: Lịch khám */}
+      {tab === 'Lịch khám' && (
         <div className="space-y-2">
           <div className="flex justify-end mb-2">
             <EntityDialogLink entity="appointment" mode="create" ctx={{ patientId: frame.id }}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-medium no-underline hover:bg-primary/90">
-              <Plus size={12} /> Dat lich moi
+              <Plus size={12} /> Đặt lịch mới
             </EntityDialogLink>
           </div>
           {(apptData?.appointments || []).map((a: Record<string, unknown>) => (
@@ -226,12 +226,12 @@ export default function PatientDialog({ frame, onClose }: Props) {
               </div>
             </EntityDialogLink>
           ))}
-          {!apptData?.appointments?.length && <p className="text-center py-8 text-gray-400 text-sm">Chua co lich kham</p>}
+          {!apptData?.appointments?.length && <p className="text-center py-8 text-gray-400 text-sm">Chưa có lịch khám</p>}
         </div>
       )}
 
-      {/* Tab: Dot dieu tri */}
-      {tab === 'Dot dieu tri' && (
+      {/* Tab: Đợt điều trị */}
+      {tab === 'Đợt điều trị' && (
         <div className="space-y-2">
           {(encounterData?.encounters || []).map((e: Record<string, unknown>) => (
             <EntityDialogLink key={e.id as string} entity="encounter" id={e.id as string}
@@ -240,23 +240,23 @@ export default function PatientDialog({ frame, onClose }: Props) {
                 <div>
                   <p className="text-xs font-mono text-gray-400">{(e.encounterCode as string)?.slice(-8)}</p>
                   <p className="text-sm font-medium text-gray-900">{e.type as string}</p>
-                  <p className="text-xs text-gray-500">{(e.department as Record<string, string>)?.name || 'Chua phan khoa'}</p>
+                  <p className="text-xs text-gray-500">{(e.department as Record<string, string>)?.name || 'Chưa phân khoa'}</p>
                 </div>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLOR[e.status as string] || 'bg-gray-100 text-gray-600'}`}>{e.status as string}</span>
               </div>
             </EntityDialogLink>
           ))}
-          {!encounterData?.encounters?.length && <p className="text-center py-8 text-gray-400 text-sm">Chua co dot dieu tri</p>}
+          {!encounterData?.encounters?.length && <p className="text-center py-8 text-gray-400 text-sm">Chưa có dot dieu tri</p>}
         </div>
       )}
 
-      {/* Tab: Xet nghiem */}
-      {tab === 'Xet nghiem' && (
+      {/* Tab: Xét nghiệm */}
+      {tab === 'Xét nghiệm' && (
         <div className="space-y-2">
           <div className="flex justify-end mb-2">
             <EntityDialogLink entity="lab_order" mode="create" ctx={{ patientId: frame.id }}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-medium no-underline hover:bg-primary/90">
-              <Plus size={12} /> Chi dinh XN
+              <Plus size={12} /> Chỉ định XN
             </EntityDialogLink>
           </div>
           {(labData?.orders || []).map((o: Record<string, unknown>) => (
@@ -265,23 +265,23 @@ export default function PatientDialog({ frame, onClose }: Props) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-900">{format(new Date(o.createdAt as string), 'dd/MM/yyyy HH:mm')}</p>
-                  <p className="text-xs text-gray-500">{(o.items as unknown[])?.length || 0} xet nghiem</p>
+                  <p className="text-xs text-gray-500">{(o.items as unknown[])?.length || 0} xét nghiệm</p>
                 </div>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLOR[o.status as string] || 'bg-gray-100 text-gray-600'}`}>{o.status as string}</span>
               </div>
             </EntityDialogLink>
           ))}
-          {!labData?.orders?.length && <p className="text-center py-8 text-gray-400 text-sm">Chua co xet nghiem</p>}
+          {!labData?.orders?.length && <p className="text-center py-8 text-gray-400 text-sm">Chưa có xét nghiệm</p>}
         </div>
       )}
 
-      {/* Tab: Hoa don */}
-      {tab === 'Hoa don' && (
+      {/* Tab: Hóa đơn */}
+      {tab === 'Hóa đơn' && (
         <div className="space-y-2">
           <div className="flex justify-end mb-2">
             <EntityDialogLink entity="bill" mode="create" ctx={{ patientId: frame.id }}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-medium no-underline hover:bg-primary/90">
-              <Plus size={12} /> Tao hoa don
+              <Plus size={12} /> Tạo hóa đơn
             </EntityDialogLink>
           </div>
           {(billData?.bills || billData || []).map((b: Record<string, unknown>) => (
@@ -296,12 +296,12 @@ export default function PatientDialog({ frame, onClose }: Props) {
               </div>
             </EntityDialogLink>
           ))}
-          {!(billData?.bills || billData || []).length && <p className="text-center py-8 text-gray-400 text-sm">Chua co hoa don</p>}
+          {!(billData?.bills || billData || []).length && <p className="text-center py-8 text-gray-400 text-sm">Chưa có hóa đơn</p>}
         </div>
       )}
 
-      {/* Tab: Lich su (Timeline) */}
-      {tab === 'Lich su' && (
+      {/* Tab: Lịch sử (Timeline) */}
+      {tab === 'Lịch sử' && (
         <PatientTimeline patientId={frame.id!} />
       )}
     </div>
@@ -317,3 +317,5 @@ function Row({ label, value, icon, className = '' }: { label: string; value: str
     </div>
   );
 }
+
+

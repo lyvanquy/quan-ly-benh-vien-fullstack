@@ -14,7 +14,7 @@ export default function DoctorDialog({ frame }: Props) {
   );
 
   if (isLoading) return <div className="flex items-center justify-center h-48"><div className="skeleton h-full w-full rounded-xl" /></div>;
-  if (!doctor) return <div className="text-center py-12 text-gray-400">Khong tim thay bac si</div>;
+  if (!doctor) return <div className="text-center py-12 text-gray-400">Không tìm thấy bác sĩ</div>;
 
   const user = doctor.user || {};
 
@@ -31,12 +31,12 @@ export default function DoctorDialog({ frame }: Props) {
           <div className="flex items-center gap-3 mt-2">
             {doctor.experienceYears > 0 && (
               <span className="flex items-center gap-1 text-xs text-gray-400">
-                <Star size={11} /> {doctor.experienceYears} nam kinh nghiem
+                <Star size={11} /> {doctor.experienceYears} năm kinh nghiệm
               </span>
             )}
             {doctor.roomNumber && (
               <span className="flex items-center gap-1 text-xs text-gray-400">
-                <DoorOpen size={11} /> Phong {doctor.roomNumber}
+                <DoorOpen size={11} /> Phòng {doctor.roomNumber}
               </span>
             )}
           </div>
@@ -47,21 +47,21 @@ export default function DoctorDialog({ frame }: Props) {
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-gray-50 rounded-xl p-4">
           <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-            <UserRound size={12} /> Thong tin
+            <UserRound size={12} /> Thông tin
           </h4>
           <div className="space-y-2 text-sm">
             <Row label="Email" value={user.email} />
-            <Row label="SDT" value={user.phone || 'Chua cap nhat'} />
-            <Row label="Vai tro" value={user.role} />
+            <Row label="SĐT" value={user.phone || 'Chưa cập nhật'} />
+            <Row label="Vai trò" value={user.role} />
           </div>
         </div>
         <div className="bg-gray-50 rounded-xl p-4">
           <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-            <Stethoscope size={12} /> Chuyen mon
+            <Stethoscope size={12} /> Chuyên môn
           </h4>
           <div className="space-y-2 text-sm">
-            <Row label="Chuyen khoa" value={doctor.specialty} />
-            <Row label="Kinh nghiem" value={`${doctor.experienceYears} nam`} />
+            <Row label="Chuyên khoa" value={doctor.specialty} />
+            <Row label="Kinh nghiệm" value={`${doctor.experienceYears} năm`} />
             {doctor.bio && <p className="text-xs text-gray-500 mt-2 leading-relaxed">{doctor.bio}</p>}
           </div>
         </div>
@@ -81,3 +81,6 @@ function Row({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+
+

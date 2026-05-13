@@ -31,7 +31,7 @@ export default function MedicineDialog({ frame, onClose }: Props) {
     {
       onSuccess: () => {
         qc.invalidateQueries('medicines');
-        toast.success(isCreate ? 'Da tao thuoc' : 'Da cap nhat');
+        toast.success(isCreate ? 'Da tao thuoc' : 'Da cập nhật');
         if (isCreate) onClose(); else setEditing(false);
       },
     }
@@ -66,15 +66,15 @@ export default function MedicineDialog({ frame, onClose }: Props) {
           {editing ? (
             <>
               <button onClick={() => saveMut.mutate(form)} className="btn-primary text-xs px-3 py-1.5">
-                <Save size={12} /> Luu
+                <Save size={12} /> Lưu
               </button>
               {!isCreate && <button onClick={() => setEditing(false)} className="btn-secondary text-xs px-3 py-1.5">
-                <X size={12} /> Huy
+                <X size={12} /> Hủy
               </button>}
             </>
           ) : (
             <button onClick={() => setEditing(true)} className="btn-secondary text-xs px-3 py-1.5">
-              <Edit2 size={12} /> Sua
+              <Edit2 size={12} /> Sửa
             </button>
           )}
         </div>
@@ -83,7 +83,7 @@ export default function MedicineDialog({ frame, onClose }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-gray-50 rounded-xl p-4">
           <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-            <Pill size={12} /> Thong tin thuoc
+            <Pill size={12} /> Thông tin thuoc
           </h4>
           {editing ? (
             <div className="space-y-3">
@@ -148,3 +148,7 @@ function Row({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+
+
+

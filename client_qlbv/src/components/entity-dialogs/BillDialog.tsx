@@ -52,7 +52,7 @@ export default function BillDialog({ frame, onClose }: Props) {
       <div>
         <div className="flex items-center gap-3 mb-5">
           <div className="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-600"><Receipt size={20} /></div>
-          <h2 className="text-lg font-bold text-gray-900">Tao hoa don moi</h2>
+          <h2 className="text-lg font-bold text-gray-900">Tạo hóa đơn moi</h2>
         </div>
         <div className="space-y-3 mb-4">
           {items.map((item, i) => (
@@ -61,7 +61,7 @@ export default function BillDialog({ frame, onClose }: Props) {
               <select className="input col-span-3 text-sm" value={item.serviceType} onChange={e => updateItem(i, 'serviceType', e.target.value)}>
                 <option value="SERVICE">Dich vu</option>
                 <option value="MEDICINE">Thuoc</option>
-                <option value="LAB">Xet nghiem</option>
+                <option value="LAB">Xét nghiệm</option>
               </select>
               <input type="number" className="input col-span-2 text-sm" placeholder="Don gia" value={item.price} onChange={e => updateItem(i, 'price', Number(e.target.value))} />
               <input type="number" className="input col-span-2 text-sm" placeholder="SL" value={item.quantity} onChange={e => updateItem(i, 'quantity', Number(e.target.value))} />
@@ -72,7 +72,7 @@ export default function BillDialog({ frame, onClose }: Props) {
           ))}
           <button onClick={() => setItems(prev => [...prev, { serviceName: '', serviceType: 'SERVICE', price: 0, quantity: 1, total: 0 }])}
             className="flex items-center gap-1.5 text-xs text-primary hover:underline">
-            <Plus size={12} /> Them dong
+            <Plus size={12} /> Thêm dong
           </button>
         </div>
         <div className="mb-4">
@@ -84,15 +84,15 @@ export default function BillDialog({ frame, onClose }: Props) {
           <span className="text-lg font-bold text-primary">{items.reduce((s, i) => s + i.total, 0).toLocaleString('vi-VN')}d</span>
         </div>
         <div className="flex gap-3 justify-end">
-          <button onClick={onClose} className="btn-secondary">Huy</button>
-          <button onClick={() => createMut.mutate()} disabled={createMut.isLoading} className="btn-primary">{createMut.isLoading ? 'Dang luu...' : 'Tao hoa don'}</button>
+          <button onClick={onClose} className="btn-secondary">Hủy</button>
+          <button onClick={() => createMut.mutate()} disabled={createMut.isLoading} className="btn-primary">{createMut.isLoading ? 'Đang lưu...' : 'Tạo hóa đơn'}</button>
         </div>
       </div>
     );
   }
 
-  if (isLoading) return <div className="flex items-center justify-center h-48 text-gray-400">Dang tai...</div>;
-  if (!bill) return <div className="text-center py-12 text-gray-400">Khong tim thay hoa don</div>;
+  if (isLoading) return <div className="flex items-center justify-center h-48 text-gray-400">Đang tải...</div>;
+  if (!bill) return <div className="text-center py-12 text-gray-400">Không tìm thấy hóa đơn</div>;
 
   return (
     <div>
@@ -106,7 +106,7 @@ export default function BillDialog({ frame, onClose }: Props) {
       </div>
 
       <div className="mb-4">
-        <p className="text-xs text-gray-400 mb-1">Benh nhan</p>
+        <p className="text-xs text-gray-400 mb-1">Bệnh nhân</p>
         <EntityDialogLink entity="patient" id={bill.patient?.id}>
           <p className="text-sm font-medium text-primary">{bill.patient?.name}</p>
         </EntityDialogLink>
@@ -134,7 +134,7 @@ export default function BillDialog({ frame, onClose }: Props) {
       </div>
 
       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl mb-4 text-sm">
-        <span className="text-gray-500">Ngay tao: {format(new Date(bill.createdAt), 'dd/MM/yyyy')}</span>
+        <span className="text-gray-500">Ngày tao: {format(new Date(bill.createdAt), 'dd/MM/yyyy')}</span>
         {bill.paidAt && <span className="text-green-600">Da thanh toan: {format(new Date(bill.paidAt), 'dd/MM/yyyy')}</span>}
       </div>
 
@@ -151,3 +151,6 @@ export default function BillDialog({ frame, onClose }: Props) {
     </div>
   );
 }
+
+
+

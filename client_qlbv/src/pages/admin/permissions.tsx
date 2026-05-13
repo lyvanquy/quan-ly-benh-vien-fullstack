@@ -87,7 +87,7 @@ export default function PermissionsAdminPage() {
                       : assignPerm.mutate(perm.id)
                     }
                     className={`ml-3 px-3 py-1 rounded text-xs font-medium transition-colors ${assigned ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
-                    {assigned ? 'Xoa' : 'Cap'}
+                    {assigned ? 'Xóa' : 'Cap'}
                   </button>
                 </div>
               );
@@ -131,9 +131,9 @@ export default function PermissionsAdminPage() {
               </div>
             </div>
             <div className="flex gap-3 justify-end mt-4">
-              <button className="btn-secondary" onClick={() => setShowCreate(false)}>Huy</button>
+              <button className="btn-secondary" onClick={() => setShowCreate(false)}>Hủy</button>
               <button className="btn-primary" onClick={() => createPerm.mutate(newPerm)} disabled={!newPerm.key || !newPerm.name || createPerm.isLoading}>
-                {createPerm.isLoading ? 'Dang luu...' : 'Tao'}
+                {createPerm.isLoading ? 'Đang lưu...' : 'Tao'}
               </button>
             </div>
           </div>
@@ -142,3 +142,4 @@ export default function PermissionsAdminPage() {
     </Layout>
   );
 }
+

@@ -8,8 +8,8 @@ import EntityDialogLink from '@/components/EntityDialogLink';
 import StatusBadge from '@/components/StatusBadge';
 
 const STATUS_LABEL: Record<string, string> = {
-  REGISTERED: 'Tiep nhan', TRIAGED: 'Da phan loai', IN_PROGRESS: 'Dang kham',
-  ADMITTED: 'Noi tru', DISCHARGED: 'Da xuat vien', TRANSFERRED: 'Chuyen vien', CANCELLED: 'Huy',
+  REGISTERED: 'Tiep nhan', TRIAGED: 'Da phan loai', IN_PROGRESS: 'Đang khám',
+  ADMITTED: 'Noi tru', DISCHARGED: 'Da xuat vien', TRANSFERRED: 'Chuyen vien', CANCELLED: 'Hủy',
 };
 const STATUS_COLOR: Record<string, string> = {
   REGISTERED: 'bg-blue-100 text-blue-700', TRIAGED: 'bg-yellow-100 text-yellow-700',
@@ -57,22 +57,22 @@ export default function EncountersPage() {
     <Layout>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dot dieu tri</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Đợt điều trị</h1>
           <p className="text-gray-500 text-sm mt-1">Quan ly cac dot kham va dieu tri</p>
         </div>
         <button onClick={() => setOpen(true)} className="btn-primary flex items-center gap-2">
-          <Plus size={16} /> Tao dot moi
+          <Plus size={16} /> Tạo đợt mới
         </button>
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center h-40 text-gray-400">Dang tai...</div>
+        <div className="flex items-center justify-center h-40 text-gray-400">Đang tải...</div>
       ) : (
         <div className="card overflow-hidden p-0">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {['Ma dot', 'Benh nhan', 'Loai', 'Trang thai', 'Khoa', 'Ngay tao', 'Hanh dong'].map(h => (
+                {['Ma dot', 'Bệnh nhân', 'Loai', 'Trang thai', 'Khoa', 'Ngày tao', 'Hanh dong'].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-medium text-gray-600">{h}</th>
                 ))}
               </tr>
@@ -105,7 +105,7 @@ export default function EncountersPage() {
               ))}
               {encounters.length === 0 && (
                 <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">
-                  <Stethoscope size={32} className="mx-auto mb-2 opacity-30" />Chua co dot dieu tri nao
+                  <Stethoscope size={32} className="mx-auto mb-2 opacity-30" />Chưa có đợt điều trị nào
                 </td></tr>
               )}
             </tbody>
@@ -113,10 +113,10 @@ export default function EncountersPage() {
         </div>
       )}
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Tao dot dieu tri moi">
+      <Modal open={open} onClose={() => setOpen(false)} title="Tạo đợt điều trị mới">
         <div className="space-y-4">
           <div>
-            <label className="label">Benh nhan</label>
+            <label className="label">Bệnh nhân</label>
             <select className="input" value={form.patientId} onChange={e => setForm(f => ({ ...f, patientId: e.target.value }))}>
               <option value="">-- Chon benh nhan --</option>
               {(patients as Record<string, string>[]).map((p) => (
@@ -136,9 +136,9 @@ export default function EncountersPage() {
               onChange={e => setForm(f => ({ ...f, chiefComplaint: e.target.value }))} />
           </div>
           <div className="flex gap-3 justify-end pt-2">
-            <button className="btn-secondary" onClick={() => setOpen(false)}>Huy</button>
+            <button className="btn-secondary" onClick={() => setOpen(false)}>Hủy</button>
             <button className="btn-primary" onClick={() => create.mutate(form)} disabled={!form.patientId || create.isLoading}>
-              {create.isLoading ? 'Dang luu...' : 'Tao dot'}
+              {create.isLoading ? 'Đang lưu...' : 'Tạo đợt'}
             </button>
           </div>
         </div>
@@ -146,3 +146,6 @@ export default function EncountersPage() {
     </Layout>
   );
 }
+
+
+

@@ -86,12 +86,12 @@ function RelationList({ entity, filterField, filterId, createCtxKey }: {
             ctx={{ [createCtxKey]: filterId }}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-500 text-white rounded-xl text-xs font-medium no-underline hover:bg-primary-600"
           >
-            <Plus size={12} /> Them moi
+            <Plus size={12} /> Thêm moi
           </EntityDialogLink>
         </div>
       )}
       {rows.length === 0 ? (
-        <div className="text-center py-8 text-gray-400 text-sm">Chua co du lieu</div>
+        <div className="text-center py-8 text-gray-400 text-sm">Chưa có dữ liệu</div>
       ) : (
         <div className="space-y-1.5">
           {rows.map((row) => (
@@ -155,3 +155,4 @@ export default function EntityRelationTabs({ entity, id }: Props) {
     </div>
   );
 }
+

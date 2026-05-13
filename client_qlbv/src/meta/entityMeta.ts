@@ -42,8 +42,8 @@ export const entityMetaMap: Record<string, EntityMeta> = {
 
   patient: {
     entity: 'patient',
-    title: 'Benh nhan',
-    titlePlural: 'Benh nhan',
+    title: 'Bệnh nhân',
+    titlePlural: 'Bệnh nhân',
     icon: 'Users',
     color: 'blue',
     apiPath: '/patients',
@@ -51,20 +51,20 @@ export const entityMetaMap: Record<string, EntityMeta> = {
     displayField: 'name',
     fields: [
       { name: 'name',            label: 'Ho ten',        type: 'text',     required: true },
-      { name: 'dob',             label: 'Ngay sinh',     type: 'date',     required: true },
-      { name: 'gender',          label: 'Gioi tinh',     type: 'select',   options: [{ value: 'MALE', label: 'Nam' }, { value: 'FEMALE', label: 'Nu' }, { value: 'OTHER', label: 'Khac' }] },
+      { name: 'dob',             label: 'Ngày sinh',     type: 'date',     required: true },
+      { name: 'gender',          label: 'Giới tính',     type: 'select',   options: [{ value: 'MALE', label: 'Nam' }, { value: 'FEMALE', label: 'Nữ' }, { value: 'OTHER', label: 'Khác' }] },
       { name: 'phone',           label: 'So dien thoai', type: 'text',     required: true },
-      { name: 'address',         label: 'Dia chi',       type: 'text' },
+      { name: 'address',         label: 'Địa chỉ',       type: 'text' },
       { name: 'bloodType',       label: 'Nhom mau',      type: 'text' },
       { name: 'allergies',       label: 'Di ung',        type: 'text' },
       { name: 'chronicDiseases', label: 'Benh man tinh', type: 'textarea' },
       { name: 'insuranceId',     label: 'Ma BHYT',       type: 'text' },
     ],
     relations: [
-      { entity: 'appointment', field: 'patientId', label: 'Lich kham',     icon: 'CalendarDays', createCtxKey: 'patientId' },
-      { entity: 'encounter',   field: 'patientId', label: 'Dot dieu tri',  icon: 'Stethoscope',  createCtxKey: 'patientId' },
-      { entity: 'lab_order',   field: 'patientId', label: 'Xet nghiem',    icon: 'FlaskConical', createCtxKey: 'patientId' },
-      { entity: 'bill',        field: 'patientId', label: 'Hoa don',       icon: 'Receipt',      createCtxKey: 'patientId' },
+      { entity: 'appointment', field: 'patientId', label: 'Lịch khám',     icon: 'CalendarDays', createCtxKey: 'patientId' },
+      { entity: 'encounter',   field: 'patientId', label: 'Đợt điều trị',  icon: 'Stethoscope',  createCtxKey: 'patientId' },
+      { entity: 'lab_order',   field: 'patientId', label: 'Xét nghiệm',    icon: 'FlaskConical', createCtxKey: 'patientId' },
+      { entity: 'bill',        field: 'patientId', label: 'Hóa đơn',       icon: 'Receipt',      createCtxKey: 'patientId' },
       { entity: 'surgery',     field: 'patientId', label: 'Phau thuat',    icon: 'Scissors',     createCtxKey: 'patientId' },
       { entity: 'referral',    field: 'patientId', label: 'Chuyen vien',   icon: 'ArrowRightLeft' },
     ],
@@ -72,8 +72,8 @@ export const entityMetaMap: Record<string, EntityMeta> = {
 
   doctor: {
     entity: 'doctor',
-    title: 'Bac si',
-    titlePlural: 'Bac si',
+    title: 'Bác sĩ',
+    titlePlural: 'Bác sĩ',
     icon: 'UserRound',
     color: 'emerald',
     apiPath: '/doctors',
@@ -87,24 +87,24 @@ export const entityMetaMap: Record<string, EntityMeta> = {
       { name: 'bio',             label: 'Gioi thieu',     type: 'textarea' },
     ],
     relations: [
-      { entity: 'appointment', field: 'doctorId', label: 'Lich kham',    icon: 'CalendarDays' },
+      { entity: 'appointment', field: 'doctorId', label: 'Lịch khám',    icon: 'CalendarDays' },
       { entity: 'surgery',     field: 'surgeonId', label: 'Phau thuat',  icon: 'Scissors' },
     ],
   },
 
   appointment: {
     entity: 'appointment',
-    title: 'Lich kham',
-    titlePlural: 'Lich kham',
+    title: 'Lịch khám',
+    titlePlural: 'Lịch khám',
     icon: 'CalendarDays',
     color: 'indigo',
     apiPath: '/appointments',
     searchFields: ['patientName', 'doctorName'],
     displayField: 'code',
     fields: [
-      { name: 'patientId',       label: 'Benh nhan',  type: 'relation', entity: 'patient',  required: true },
-      { name: 'doctorId',        label: 'Bac si',     type: 'relation', entity: 'doctor',   required: true },
-      { name: 'appointmentDate', label: 'Ngay gio',   type: 'date',     required: true },
+      { name: 'patientId',       label: 'Bệnh nhân',  type: 'relation', entity: 'patient',  required: true },
+      { name: 'doctorId',        label: 'Bác sĩ',     type: 'relation', entity: 'doctor',   required: true },
+      { name: 'appointmentDate', label: 'Ngày gio',   type: 'date',     required: true },
       { name: 'note',            label: 'Ghi chu',    type: 'textarea' },
     ],
     relations: [],
@@ -113,15 +113,15 @@ export const entityMetaMap: Record<string, EntityMeta> = {
 
   encounter: {
     entity: 'encounter',
-    title: 'Dot dieu tri',
-    titlePlural: 'Dot dieu tri',
+    title: 'Đợt điều trị',
+    titlePlural: 'Đợt điều trị',
     icon: 'Stethoscope',
     color: 'purple',
     apiPath: '/encounters',
     searchFields: ['encounterCode'],
     displayField: 'encounterCode',
     fields: [
-      { name: 'patientId',      label: 'Benh nhan',    type: 'relation', entity: 'patient', required: true },
+      { name: 'patientId',      label: 'Bệnh nhân',    type: 'relation', entity: 'patient', required: true },
       { name: 'type',           label: 'Loai',         type: 'select',   options: [
         { value: 'OUTPATIENT', label: 'Ngoai tru' }, { value: 'INPATIENT', label: 'Noi tru' },
         { value: 'EMERGENCY', label: 'Cap cuu' }, { value: 'DAY_SURGERY', label: 'Phau thuat ngay' },
@@ -134,15 +134,15 @@ export const entityMetaMap: Record<string, EntityMeta> = {
 
   lab_order: {
     entity: 'lab_order',
-    title: 'Xet nghiem',
-    titlePlural: 'Xet nghiem',
+    title: 'Xét nghiệm',
+    titlePlural: 'Xét nghiệm',
     icon: 'FlaskConical',
     color: 'teal',
     apiPath: '/lab/orders',
     searchFields: [],
     displayField: 'id',
     fields: [
-      { name: 'patientId', label: 'Benh nhan', type: 'relation', entity: 'patient', required: true },
+      { name: 'patientId', label: 'Bệnh nhân', type: 'relation', entity: 'patient', required: true },
       { name: 'note',      label: 'Ghi chu',   type: 'textarea' },
     ],
     relations: [],
@@ -151,15 +151,15 @@ export const entityMetaMap: Record<string, EntityMeta> = {
 
   bill: {
     entity: 'bill',
-    title: 'Hoa don',
-    titlePlural: 'Hoa don',
+    title: 'Hóa đơn',
+    titlePlural: 'Hóa đơn',
     icon: 'Receipt',
     color: 'amber',
     apiPath: '/bills',
     searchFields: ['billCode'],
     displayField: 'billCode',
     fields: [
-      { name: 'patientId', label: 'Benh nhan', type: 'relation', entity: 'patient', required: true },
+      { name: 'patientId', label: 'Bệnh nhân', type: 'relation', entity: 'patient', required: true },
       { name: 'note',      label: 'Ghi chu',   type: 'textarea' },
     ],
     relations: [],
@@ -216,7 +216,7 @@ export const entityMetaMap: Record<string, EntityMeta> = {
     searchFields: ['procedureName'],
     displayField: 'procedureName',
     fields: [
-      { name: 'patientId',      label: 'Benh nhan',    type: 'relation', entity: 'patient',  required: true },
+      { name: 'patientId',      label: 'Bệnh nhân',    type: 'relation', entity: 'patient',  required: true },
       { name: 'surgeonId',      label: 'Phau thuat vien', type: 'relation', entity: 'doctor', required: true },
       { name: 'procedureName',  label: 'Ten phau thuat', type: 'text',   required: true },
       { name: 'scheduledStart', label: 'Bat dau du kien', type: 'date',  required: true },
@@ -237,7 +237,7 @@ export const entityMetaMap: Record<string, EntityMeta> = {
     searchFields: ['reason'],
     displayField: 'reason',
     fields: [
-      { name: 'patientId',    label: 'Benh nhan',    type: 'relation', entity: 'patient', required: true },
+      { name: 'patientId',    label: 'Bệnh nhân',    type: 'relation', entity: 'patient', required: true },
       { name: 'toDepartment', label: 'Khoa tiep nhan', type: 'text' },
       { name: 'toFacility',   label: 'Co so tiep nhan', type: 'text' },
       { name: 'reason',       label: 'Ly do',        type: 'textarea', required: true },
@@ -259,7 +259,7 @@ export const entityMetaMap: Record<string, EntityMeta> = {
     searchFields: ['type'],
     displayField: 'type',
     fields: [
-      { name: 'patientId', label: 'Benh nhan', type: 'relation', entity: 'patient', required: true },
+      { name: 'patientId', label: 'Bệnh nhân', type: 'relation', entity: 'patient', required: true },
       { name: 'type',      label: 'Loai',      type: 'select', options: [
         { value: 'GENERAL', label: 'Tong quat' }, { value: 'SURGERY', label: 'Phau thuat' },
         { value: 'ANESTHESIA', label: 'Gay me' }, { value: 'RESEARCH', label: 'Nghien cuu' },
@@ -279,8 +279,8 @@ export const entityMetaMap: Record<string, EntityMeta> = {
     searchFields: [],
     displayField: 'id',
     fields: [
-      { name: 'patientId',   label: 'Benh nhan', type: 'relation', entity: 'patient', required: true },
-      { name: 'doctorId',    label: 'Bac si',    type: 'relation', entity: 'doctor',  required: true },
+      { name: 'patientId',   label: 'Bệnh nhân', type: 'relation', entity: 'patient', required: true },
+      { name: 'doctorId',    label: 'Bác sĩ',    type: 'relation', entity: 'doctor',  required: true },
       { name: 'scheduledAt', label: 'Thoi gian', type: 'date',     required: true },
     ],
     relations: [],
@@ -322,3 +322,5 @@ export const searchableEntities = Object.values(entityMetaMap).filter(m => m.sea
 
 /** All entities that appear in patient timeline */
 export const timelineEntities = Object.values(entityMetaMap).filter(m => m.timelineSource);
+
+

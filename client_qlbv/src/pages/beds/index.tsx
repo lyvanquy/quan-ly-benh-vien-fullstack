@@ -33,7 +33,7 @@ export default function BedsPage() {
     maintenance: allBeds.filter(b => b.status === 'MAINTENANCE').length,
   };
 
-  if (isLoading) return <Layout><div className="flex items-center justify-center h-40 text-gray-400">Dang tai...</div></Layout>;
+  if (isLoading) return <Layout><div className="flex items-center justify-center h-40 text-gray-400">Đang tải...</div></Layout>;
 
   return (
     <Layout>
@@ -71,7 +71,7 @@ export default function BedsPage() {
       {(wards as Record<string, unknown>[]).length === 0 ? (
         <div className="card flex flex-col items-center justify-center py-16 text-gray-400">
           <BedDouble size={48} className="mb-3 opacity-30" />
-          <p>Chua co du lieu giuong. Hay chay seed de tao du lieu mau.</p>
+          <p>Chưa có dữ liệu giuong. Hay chay seed de tao du lieu mau.</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -104,3 +104,4 @@ export default function BedsPage() {
     </Layout>
   );
 }
+

@@ -46,7 +46,7 @@ export default function DialogAdminPage() {
     (data: unknown) => api.post('/dialogs', data),
     {
       onSuccess: () => { qc.invalidateQueries('flows'); toast.success('Tạo flow thành công'); setShowCreate(false); },
-      onError: (e: unknown) => toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Lỗi'),
+      onError: (e: unknown) => { toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Lỗi'); },
     }
   );
 

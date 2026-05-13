@@ -42,20 +42,20 @@ export default function ConsentPage() {
           <h1 className="text-2xl font-bold text-gray-900">Phieu dong thuan</h1>
         </div>
         <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
-          <Plus size={16} /> Tao phieu
+          <Plus size={16} /> Tạo phiếu
         </button>
       </div>
 
       <div className="card overflow-hidden p-0">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>{['Benh nhan', 'Loai', 'Noi dung', 'Nguoi ky', 'Ngay ky', 'Trang thai', 'Hanh dong'].map(h => (
+            <tr>{['Bệnh nhân', 'Loai', 'Noi dung', 'Nguoi ky', 'Ngày ky', 'Trang thai', 'Hanh dong'].map(h => (
               <th key={h} className="px-4 py-3 text-left font-medium text-gray-600">{h}</th>
             ))}</tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {isLoading ? (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">Dang tai...</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">Đang tải...</td></tr>
             ) : forms.map((f: Record<string, unknown>) => (
               <tr key={f.id as string} className="hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium">
@@ -68,7 +68,7 @@ export default function ConsentPage() {
                 <td className="px-4 py-3">
                   {f.signedAt
                     ? <span className="flex items-center gap-1 text-green-600 text-xs"><CheckCircle size={12} /> Da ky</span>
-                    : <span className="text-yellow-600 text-xs">Chua ky</span>}
+                    : <span className="text-yellow-600 text-xs">Chưa ký</span>}
                 </td>
                 <td className="px-4 py-3">
                   {!f.signedAt && (
@@ -81,16 +81,16 @@ export default function ConsentPage() {
               </tr>
             ))}
             {!isLoading && !forms.length && (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">Chua co phieu dong thuan</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">Chưa có phiếu đồng thuận</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Tao phieu dong thuan">
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Tạo phiếu dong thuan">
         <div className="space-y-4">
           <div>
-            <label className="label">Benh nhan</label>
+            <label className="label">Bệnh nhân</label>
             <select className="input" value={form.patientId} onChange={e => setForm(f => ({ ...f, patientId: e.target.value }))}>
               <option value="">-- Chon benh nhan --</option>
               {patients.map((p: Record<string, string>) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -107,15 +107,15 @@ export default function ConsentPage() {
             <textarea className="input" rows={5} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} />
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowModal(false)} className="btn-secondary">Huy</button>
+            <button onClick={() => setShowModal(false)} className="btn-secondary">Hủy</button>
             <button onClick={() => createMut.mutate(form)} disabled={createMut.isLoading} className="btn-primary">
-              {createMut.isLoading ? 'Dang luu...' : 'Tao phieu'}
+              {createMut.isLoading ? 'Đang lưu...' : 'Tạo phiếu'}
             </button>
           </div>
         </div>
       </Modal>
 
-      <Modal open={!!signModal} onClose={() => setSignModal(null)} title="Ky duyet phieu dong thuan">
+      <Modal open={!!signModal} onClose={() => setSignModal(null)} title="Ky duyet phiếu đồng thuận">
         <div className="space-y-4">
           <div>
             <label className="label">Nguoi ky (ten benh nhan / nguoi giam ho)</label>
@@ -126,10 +126,10 @@ export default function ConsentPage() {
             <input className="input" value={signForm.witnessId} onChange={e => setSignForm(f => ({ ...f, witnessId: e.target.value }))} />
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setSignModal(null)} className="btn-secondary">Huy</button>
+            <button onClick={() => setSignModal(null)} className="btn-secondary">Hủy</button>
             <button onClick={() => signModal && signMut.mutate({ id: signModal, data: signForm })}
               disabled={signMut.isLoading} className="btn-primary">
-              {signMut.isLoading ? 'Dang luu...' : 'Xac nhan ky'}
+              {signMut.isLoading ? 'Đang lưu...' : 'Xác nhận ky'}
             </button>
           </div>
         </div>
@@ -137,3 +137,5 @@ export default function ConsentPage() {
     </Layout>
   );
 }
+
+

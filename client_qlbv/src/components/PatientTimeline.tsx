@@ -78,7 +78,7 @@ export default function PatientTimeline({ patientId }: { patientId: string }) {
     return (
       <div className="text-center py-10">
         <Clock size={28} className="text-gray-200 mx-auto mb-2" />
-        <p className="text-sm text-gray-400">Chua co lich su dieu tri</p>
+        <p className="text-sm text-gray-400">Chưa có lịch sử điều trị</p>
       </div>
     );
   }
@@ -151,3 +151,4 @@ export default function PatientTimeline({ patientId }: { patientId: string }) {
     </div>
   );
 }
+

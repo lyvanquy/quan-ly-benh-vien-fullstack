@@ -49,13 +49,13 @@ export default function TelemedicinePage() {
           <h1 className="text-2xl font-bold text-gray-900">Kham tu xa (Telemedicine)</h1>
         </div>
         <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
-          <Plus size={16} /> Dat lich kham tu xa
+          <Plus size={16} /> Dat lịch khám từ xa
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {isLoading ? (
-          <div className="col-span-3 text-center py-12 text-gray-400">Dang tai...</div>
+          <div className="col-span-3 text-center py-12 text-gray-400">Đang tải...</div>
         ) : consults.map((c: Record<string, unknown>) => (
           <div key={c.id as string} className="card">
             <div className="flex items-start justify-between mb-3">
@@ -96,21 +96,21 @@ export default function TelemedicinePage() {
           </div>
         ))}
         {!isLoading && !consults.length && (
-          <div className="col-span-3 text-center py-12 text-gray-400">Chua co lich kham tu xa</div>
+          <div className="col-span-3 text-center py-12 text-gray-400">Chưa có lịch khám từ xa</div>
         )}
       </div>
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="Dat lich kham tu xa">
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Dat lịch khám từ xa">
         <div className="space-y-4">
           <div>
-            <label className="label">Benh nhan</label>
+            <label className="label">Bệnh nhân</label>
             <select className="input" value={form.patientId} onChange={e => setForm(f => ({ ...f, patientId: e.target.value }))}>
               <option value="">-- Chon benh nhan --</option>
               {patients.map((p: Record<string, string>) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="label">Bac si</label>
+            <label className="label">Bác sĩ</label>
             <select className="input" value={form.doctorId} onChange={e => setForm(f => ({ ...f, doctorId: e.target.value }))}>
               <option value="">-- Chon bac si --</option>
               {doctors.map((d: Record<string, unknown>) => <option key={d.id as string} value={d.id as string}>{(d.user as Record<string, string>)?.name}</option>)}
@@ -125,9 +125,9 @@ export default function TelemedicinePage() {
             <textarea className="input" rows={2} value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} />
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowModal(false)} className="btn-secondary">Huy</button>
+            <button onClick={() => setShowModal(false)} className="btn-secondary">Hủy</button>
             <button onClick={() => createMut.mutate(form)} disabled={createMut.isLoading} className="btn-primary">
-              {createMut.isLoading ? 'Dang luu...' : 'Dat lich'}
+              {createMut.isLoading ? 'Đang lưu...' : 'Đặt lịch'}
             </button>
           </div>
         </div>
@@ -135,3 +135,6 @@ export default function TelemedicinePage() {
     </Layout>
   );
 }
+
+
+

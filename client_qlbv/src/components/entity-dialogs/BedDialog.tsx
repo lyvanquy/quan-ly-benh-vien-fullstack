@@ -24,7 +24,7 @@ export default function BedDialog({ frame }: Props) {
   );
 
   if (isLoading) return <div className="skeleton h-48 rounded-xl" />;
-  if (!bed) return <div className="text-center py-12 text-gray-400">Khong tim thay giuong</div>;
+  if (!bed) return <div className="text-center py-12 text-gray-400">Không tìm thấy giuong</div>;
 
   return (
     <div>
@@ -65,3 +65,4 @@ function Row({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

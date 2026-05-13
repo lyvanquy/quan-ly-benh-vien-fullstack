@@ -23,6 +23,10 @@ interface SearchResult {
   label: string;
   sub?: string;
 }
+type PaletteItem =
+  | { kind: 'result'; payload: SearchResult }
+  | { kind: 'create'; payload: { entity: string } }
+  | { kind: 'nav'; payload: { href: string } };
 
 const ENTITY_ICON: Record<string, React.ElementType> = {
   patient:     Users,
@@ -47,26 +51,26 @@ const ENTITY_COLOR: Record<string, string> = {
 };
 
 const ENTITY_LABEL: Record<string, string> = {
-  patient: 'Benh nhan', doctor: 'Bac si', medicine: 'Thuoc',
-  bill: 'Hoa don', surgery: 'Phau thuat', appointment: 'Lich kham',
-  encounter: 'Dot dieu tri', lab_order: 'Xet nghiem',
+  patient: 'Bệnh nhân', doctor: 'Bác sĩ', medicine: 'Thuốc',
+  bill: 'Hóa đơn', surgery: 'Phẫu thuật', appointment: 'Lịch khám',
+  encounter: 'Đợt điều trị', lab_order: 'Xét nghiệm',
 };
 
 const QUICK_CREATES = [
-  { label: 'Tao benh nhan moi',  entity: 'patient',     icon: Users },
-  { label: 'Dat lich kham',      entity: 'appointment', icon: CalendarDays },
-  { label: 'Tao dot dieu tri',   entity: 'encounter',   icon: Stethoscope },
-  { label: 'Chi dinh xet nghiem',entity: 'lab_order',   icon: FlaskConical },
-  { label: 'Tao hoa don',        entity: 'bill',        icon: Receipt },
+  { label: 'Tạo bệnh nhân mới',  entity: 'patient',     icon: Users },
+  { label: 'Đặt lịch khám',      entity: 'appointment', icon: CalendarDays },
+  { label: 'Tạo đợt điều trị',   entity: 'encounter',   icon: Stethoscope },
+  { label: 'Chỉ định xét nghiệm',entity: 'lab_order',   icon: FlaskConical },
+  { label: 'Tạo hóa đơn',        entity: 'bill',        icon: Receipt },
 ];
 
 const NAV_ITEMS = [
   { label: 'Dashboard',    href: '/dashboard',    icon: LayoutDashboard },
-  { label: 'Benh nhan',    href: '/patients',     icon: Users },
-  { label: 'Bac si',       href: '/doctors',      icon: UserRound },
-  { label: 'Lich kham',    href: '/appointments', icon: CalendarDays },
-  { label: 'Xet nghiem',   href: '/lab',          icon: FlaskConical },
-  { label: 'Hoa don',      href: '/billing',      icon: Receipt },
+  { label: 'Bệnh nhân',    href: '/patients',     icon: Users },
+  { label: 'Bác sĩ',       href: '/doctors',      icon: UserRound },
+  { label: 'Lịch khám',    href: '/appointments', icon: CalendarDays },
+  { label: 'Xét nghiệm',   href: '/lab',          icon: FlaskConical },
+  { label: 'Hóa đơn',      href: '/billing',      icon: Receipt },
   { label: 'Workflow',     href: '/workflows',    icon: GitBranch },
 ];
 
@@ -114,8 +118,17 @@ export default function GlobalSearch() {
     return () => clearTimeout(t);
   }, [query]);
 
+  useEffect(() => {
+    if (selected >= results.length) setSelected(0);
+  }, [results.length, selected]);
+
   const filteredNav = NAV_ITEMS.filter(n => !query || n.label.toLowerCase().includes(query.toLowerCase()));
   const filteredCreates = QUICK_CREATES.filter(c => !query || c.label.toLowerCase().includes(query.toLowerCase()));
+  const showSearch = query.length >= 2;
+  const searchItems: PaletteItem[] = showSearch && !loading ? results.map((r) => ({ kind: 'result', payload: r })) : [];
+  const createItems: PaletteItem[] = filteredCreates.map((c) => ({ kind: 'create', payload: { entity: c.entity } }));
+  const navItems: PaletteItem[] = filteredNav.map((n) => ({ kind: 'nav', payload: { href: n.href } }));
+  const keyboardItems: PaletteItem[] = [...searchItems, ...createItems, ...navItems];
 
   const handleSelectResult = useCallback((r: SearchResult) => {
     openDialog(r.entity as EntityType, r.id, 'view');
@@ -132,9 +145,11 @@ export default function GlobalSearch() {
     setOpen(false);
   }, [router, setOpen]);
 
-  if (!open) return null;
+  useEffect(() => {
+    if (selected >= keyboardItems.length) setSelected(0);
+  }, [keyboardItems.length, selected]);
 
-  const showSearch = query.length >= 2;
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4 animate-fadeIn">
@@ -150,7 +165,24 @@ export default function GlobalSearch() {
             ref={inputRef}
             value={query}
             onChange={e => { setQuery(e.target.value); setSelected(0); }}
-            placeholder="Tim kiem benh nhan, bac si, thuoc... hoac nhap lenh"
+            onKeyDown={(e) => {
+              if (keyboardItems.length === 0) return;
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setSelected((s) => (s + 1) % keyboardItems.length);
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setSelected((s) => (s - 1 + keyboardItems.length) % keyboardItems.length);
+              } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const target = keyboardItems[selected];
+                if (!target) return;
+                if (target.kind === 'result') handleSelectResult(target.payload);
+                if (target.kind === 'create') handleSelectCreate(target.payload.entity);
+                if (target.kind === 'nav') handleNav(target.payload.href);
+              }
+            }}
+            placeholder="Tìm kiếm bệnh nhân, bác sĩ, thuốc... hoặc nhập lệnh"
             className="flex-1 text-sm text-gray-900 placeholder-gray-400 outline-none bg-transparent"
           />
           {query && (
@@ -173,28 +205,32 @@ export default function GlobalSearch() {
                 </div>
               ) : results.length > 0 ? (
                 <>
-                  <p className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Ket qua tim kiem</p>
-                  {results.map((r, i) => {
-                    const Icon = ENTITY_ICON[r.entity] || Search;
-                    const color = ENTITY_COLOR[r.entity] || 'text-gray-500 bg-gray-50';
-                    return (
-                      <button key={r.id} onClick={() => handleSelectResult(r)}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${selected === i ? 'bg-primary-50' : 'hover:bg-gray-50'}`}>
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
-                          <Icon size={14} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{r.label}</p>
-                          {r.sub && <p className="text-xs text-gray-400 truncate">{r.sub}</p>}
-                        </div>
-                        <span className="text-[10px] text-gray-300 shrink-0">{ENTITY_LABEL[r.entity] || r.entity}</span>
-                        <ArrowRight size={12} className="text-gray-300 shrink-0" />
-                      </button>
-                    );
-                  })}
+                  <p className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Kết quả tìm kiếm</p>
+                  {(() => {
+                    const base = 0;
+                    return results.map((r, i) => {
+                      const globalIndex = base + i;
+                      const Icon = ENTITY_ICON[r.entity] || Search;
+                      const color = ENTITY_COLOR[r.entity] || 'text-gray-500 bg-gray-50';
+                      return (
+                        <button key={r.id} onClick={() => handleSelectResult(r)}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${selected === globalIndex ? 'bg-primary-50' : 'hover:bg-gray-50'}`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
+                            <Icon size={14} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">{r.label}</p>
+                            {r.sub && <p className="text-xs text-gray-400 truncate">{r.sub}</p>}
+                          </div>
+                          <span className="text-[10px] text-gray-300 shrink-0">{ENTITY_LABEL[r.entity] || r.entity}</span>
+                          <ArrowRight size={12} className="text-gray-300 shrink-0" />
+                        </button>
+                      );
+                    });
+                  })()}
                 </>
               ) : (
-                <div className="text-center py-8 text-gray-400 text-sm">Khong tim thay ket qua cho &quot;{query}&quot;</div>
+                <div className="text-center py-8 text-gray-400 text-sm">Không tìm thấy kết quả cho &quot;{query}&quot;</div>
               )}
             </div>
           )}
@@ -202,12 +238,14 @@ export default function GlobalSearch() {
           {/* Quick creates */}
           {filteredCreates.length > 0 && (
             <div className="p-2 border-t border-gray-50">
-              <p className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Tao moi nhanh</p>
-              {filteredCreates.map((c) => {
+              <p className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Tạo mới nhanh</p>
+              {filteredCreates.map((c, i) => {
+                const base = searchItems.length;
+                const globalIndex = base + i;
                 const Icon = c.icon;
                 return (
                   <button key={c.entity} onClick={() => handleSelectCreate(c.entity)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-gray-50 transition-colors">
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${selected === globalIndex ? 'bg-primary-50' : 'hover:bg-gray-50'}`}>
                     <div className="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center shrink-0">
                       <Plus size={12} className="text-primary-500" />
                     </div>
@@ -222,12 +260,14 @@ export default function GlobalSearch() {
           {/* Navigation */}
           {filteredNav.length > 0 && (
             <div className="p-2 border-t border-gray-50">
-              <p className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Dieu huong</p>
-              {filteredNav.map((n) => {
+              <p className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Điều hướng</p>
+              {filteredNav.map((n, i) => {
+                const base = searchItems.length + createItems.length;
+                const globalIndex = base + i;
                 const Icon = n.icon;
                 return (
                   <button key={n.href} onClick={() => handleNav(n.href)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-gray-50 transition-colors">
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors ${selected === globalIndex ? 'bg-primary-50' : 'hover:bg-gray-50'}`}>
                     <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
                       <Icon size={14} className="text-gray-400" />
                     </div>
@@ -243,13 +283,13 @@ export default function GlobalSearch() {
         {/* Footer hint */}
         <div className="flex items-center gap-3 px-4 py-2.5 border-t border-gray-50 bg-gray-50/50">
           <span className="text-[10px] text-gray-400">
-            <kbd className="font-mono bg-white border border-gray-200 rounded px-1 py-0.5 text-[9px]">↑↓</kbd> di chuyen
+            <kbd className="font-mono bg-white border border-gray-200 rounded px-1 py-0.5 text-[9px]">↑↓</kbd> di chuyển
           </span>
           <span className="text-[10px] text-gray-400">
-            <kbd className="font-mono bg-white border border-gray-200 rounded px-1 py-0.5 text-[9px]">Enter</kbd> chon
+            <kbd className="font-mono bg-white border border-gray-200 rounded px-1 py-0.5 text-[9px]">Enter</kbd> chọn
           </span>
           <span className="text-[10px] text-gray-400">
-            <kbd className="font-mono bg-white border border-gray-200 rounded px-1 py-0.5 text-[9px]">Esc</kbd> dong
+            <kbd className="font-mono bg-white border border-gray-200 rounded px-1 py-0.5 text-[9px]">Esc</kbd> đóng
           </span>
           <span className="ml-auto text-[10px] text-gray-300">Ctrl+K</span>
         </div>
@@ -257,3 +297,5 @@ export default function GlobalSearch() {
     </div>
   );
 }
+
+

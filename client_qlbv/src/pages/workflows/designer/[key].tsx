@@ -154,10 +154,11 @@ export default function FlowDesignerPage() {
 
       {/* Node inspector opens as EntityDialog on click */}
 
-      <Modal open={showNodeModal} onClose={() => setShowNodeModal(false)} title="Them node moi">
+      <Modal open={showNodeModal} onClose={() => setShowNodeModal(false)} title="Thêm node moi">
         <p className="text-sm text-gray-500 mb-4">De them node, hay chinh sua workflow JSON tu trang quan ly va re-deploy. Tinh nang them node truc tiep dang phat trien.</p>
         <Link href="/workflows" className="btn-primary block text-center">Ve trang quan ly</Link>
       </Modal>
     </Layout>
   );
 }
+

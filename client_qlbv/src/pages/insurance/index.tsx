@@ -47,11 +47,11 @@ export default function InsurancePage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Bao hiem y te</h1>
-          <p className="text-gray-500 text-sm mt-1">Quan ly hop dong va yeu cau boi thuong</p>
+          <p className="text-gray-500 text-sm mt-1">Quan ly hop dong va yêu cầu bồi thường</p>
         </div>
         {tab === 'policies' && (
           <button onClick={() => setOpenPolicy(true)} className="btn-primary flex items-center gap-2">
-            <Plus size={16} /> Them hop dong
+            <Plus size={16} /> Thêm hop dong
           </button>
         )}
       </div>
@@ -60,7 +60,7 @@ export default function InsurancePage() {
         {(['policies', 'claims'] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${tab === t ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
-            {t === 'policies' ? 'Hop dong BH' : 'Yeu cau boi thuong'}
+            {t === 'policies' ? 'Hop dong BH' : 'Yeu cau bồi thường'}
           </button>
         ))}
       </div>
@@ -70,7 +70,7 @@ export default function InsurancePage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {['Benh nhan', 'Nha cung cap', 'So hop dong', 'Goi bao hiem', 'Hieu luc', 'Het han', 'Muc bao hiem'].map(h => (
+                {['Bệnh nhân', 'Nha cung cap', 'So hop dong', 'Goi bao hiem', 'Hieu luc', 'Het han', 'Muc bao hiem'].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-medium text-gray-600">{h}</th>
                 ))}
               </tr>
@@ -93,7 +93,7 @@ export default function InsurancePage() {
               ))}
               {(policies as unknown[]).length === 0 && (
                 <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">
-                  <ShieldCheck size={32} className="mx-auto mb-2 opacity-30" />Chua co hop dong bao hiem
+                  <ShieldCheck size={32} className="mx-auto mb-2 opacity-30" />Chưa có hợp đồng bảo hiểm
                 </td></tr>
               )}
             </tbody>
@@ -106,7 +106,7 @@ export default function InsurancePage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {['Benh nhan', 'Nha cung cap', 'So hop dong', 'So tien yeu cau', 'Trang thai', 'Ngay tao', 'Hanh dong'].map(h => (
+                {['Bệnh nhân', 'Nha cung cap', 'So hop dong', 'So tien yêu cầu', 'Trang thai', 'Ngày tao', 'Hanh dong'].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-medium text-gray-600">{h}</th>
                 ))}
               </tr>
@@ -129,7 +129,7 @@ export default function InsurancePage() {
                   <td className="px-4 py-3">
                     {c.status === 'DRAFT' && (
                       <button onClick={() => updateClaim.mutate({ id: c.id as string, status: 'SUBMITTED' })}
-                        className="text-xs text-blue-600 hover:underline">Nop yeu cau</button>
+                        className="text-xs text-blue-600 hover:underline">Nop yêu cầu</button>
                     )}
                     {c.status === 'SUBMITTED' && (
                       <div className="flex gap-2">
@@ -144,7 +144,7 @@ export default function InsurancePage() {
               ))}
               {(claims as unknown[]).length === 0 && (
                 <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">
-                  <FileText size={32} className="mx-auto mb-2 opacity-30" />Chua co yeu cau boi thuong
+                  <FileText size={32} className="mx-auto mb-2 opacity-30" />Chưa có yêu cầu bồi thường
                 </td></tr>
               )}
             </tbody>
@@ -152,10 +152,10 @@ export default function InsurancePage() {
         </div>
       )}
 
-      <Modal open={openPolicy} onClose={() => setOpenPolicy(false)} title="Them hop dong bao hiem">
+      <Modal open={openPolicy} onClose={() => setOpenPolicy(false)} title="Thêm hợp đồng bảo hiểm">
         <div className="space-y-4">
           <div>
-            <label className="label">Benh nhan</label>
+            <label className="label">Bệnh nhân</label>
             <select className="input" value={policyForm.patientId} onChange={e => setPolicyForm(f => ({ ...f, patientId: e.target.value }))}>
               <option value="">-- Chon benh nhan --</option>
               {(patients as Record<string, string>[]).map(p => <option key={p.id} value={p.id}>{p.name} - {p.phone}</option>)}
@@ -184,18 +184,18 @@ export default function InsurancePage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">Ngay hieu luc</label>
+              <label className="label">Ngày hieu luc</label>
               <input type="date" className="input" value={policyForm.validFrom} onChange={e => setPolicyForm(f => ({ ...f, validFrom: e.target.value }))} />
             </div>
             <div>
-              <label className="label">Ngay het han</label>
+              <label className="label">Ngày het han</label>
               <input type="date" className="input" value={policyForm.validTo} onChange={e => setPolicyForm(f => ({ ...f, validTo: e.target.value }))} />
             </div>
           </div>
           <div className="flex gap-3 justify-end pt-2">
-            <button className="btn-secondary" onClick={() => setOpenPolicy(false)}>Huy</button>
+            <button className="btn-secondary" onClick={() => setOpenPolicy(false)}>Hủy</button>
             <button className="btn-primary" onClick={() => createPolicy.mutate(policyForm)} disabled={createPolicy.isLoading}>
-              {createPolicy.isLoading ? 'Dang luu...' : 'Luu'}
+              {createPolicy.isLoading ? 'Đang lưu...' : 'Lưu'}
             </button>
           </div>
         </div>
@@ -203,3 +203,6 @@ export default function InsurancePage() {
     </Layout>
   );
 }
+
+
+

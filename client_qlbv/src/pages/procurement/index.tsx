@@ -67,7 +67,7 @@ export default function ProcurementPage() {
           )}
           {tab === 'suppliers' && (
             <button onClick={() => setShowSupplierModal(true)} className="btn-primary flex items-center gap-2">
-              <Plus size={16} /> Them nha cung cap
+              <Plus size={16} /> Thêm nhà cung cấp
             </button>
           )}
         </div>
@@ -86,13 +86,13 @@ export default function ProcurementPage() {
         <div className="card overflow-hidden p-0">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>{['Nha cung cap', 'Tong tien', 'Trang thai', 'Ngay dat', 'Ngay nhan', 'Hanh dong'].map(h => (
+              <tr>{['Nha cung cap', 'Tong tien', 'Trang thai', 'Ngày dat', 'Ngày nhan', 'Hanh dong'].map(h => (
                 <th key={h} className="px-4 py-3 text-left font-medium text-gray-600">{h}</th>
               ))}</tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {ordersLoading ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Dang tai...</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Đang tải...</td></tr>
               ) : orders.map((o: Record<string, unknown>) => (
                 <tr key={o.id as string} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium">{(o.supplier as Record<string, string>)?.name}</td>
@@ -107,13 +107,13 @@ export default function ProcurementPage() {
                     )}
                     {o.status === 'SENT' && (
                       <button onClick={() => updateOrderStatus.mutate({ id: o.id as string, status: 'RECEIVED' })}
-                        className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100">Xac nhan nhan</button>
+                        className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100">Xác nhận nhan</button>
                     )}
                   </td>
                 </tr>
               ))}
               {!ordersLoading && !orders.length && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Chua co don mua hang</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Chưa có đơn mua hàng</td></tr>
               )}
             </tbody>
           </table>
@@ -124,13 +124,13 @@ export default function ProcurementPage() {
         <div className="card overflow-hidden p-0">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>{['Ma', 'Ten nha cung cap', 'Nguoi lien he', 'Dien thoai', 'Email'].map(h => (
+              <tr>{['Ma', 'Ten nhà cung cấp', 'Nguoi lien he', 'Dien thoai', 'Email'].map(h => (
                 <th key={h} className="px-4 py-3 text-left font-medium text-gray-600">{h}</th>
               ))}</tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {suppliersLoading ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Dang tai...</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Đang tải...</td></tr>
               ) : suppliers.map((s: Record<string, string>) => (
                 <tr key={s.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-mono text-xs text-gray-500">{s.code}</td>
@@ -141,7 +141,7 @@ export default function ProcurementPage() {
                 </tr>
               ))}
               {!suppliersLoading && !suppliers.length && (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Chua co nha cung cap</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Chưa có nhà cung cấp</td></tr>
               )}
             </tbody>
           </table>
@@ -149,12 +149,12 @@ export default function ProcurementPage() {
       )}
 
       {/* Create Order Modal */}
-      <Modal open={showOrderModal} onClose={() => setShowOrderModal(false)} title="Tao don mua hang">
+      <Modal open={showOrderModal} onClose={() => setShowOrderModal(false)} title="Tao đơn mua hàng">
         <div className="space-y-4">
           <div>
             <label className="label">Nha cung cap</label>
             <select className="input" value={orderForm.supplierId} onChange={e => setOrderForm(f => ({ ...f, supplierId: e.target.value }))}>
-              <option value="">-- Chon nha cung cap --</option>
+              <option value="">-- Chon nhà cung cấp --</option>
               {suppliers.map((s: Record<string, string>) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
@@ -167,20 +167,20 @@ export default function ProcurementPage() {
                 <input type="number" className="input" placeholder="Don gia" value={item.unitPrice} onChange={e => updateItem(i, 'unitPrice', Number(e.target.value))} />
               </div>
             ))}
-            <button onClick={addItem} className="text-xs text-primary hover:underline">+ Them dong</button>
+            <button onClick={addItem} className="text-xs text-primary hover:underline">+ Thêm dong</button>
           </div>
           <div><label className="label">Ghi chu</label><textarea className="input" rows={2} value={orderForm.note} onChange={e => setOrderForm(f => ({ ...f, note: e.target.value }))} /></div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowOrderModal(false)} className="btn-secondary">Huy</button>
+            <button onClick={() => setShowOrderModal(false)} className="btn-secondary">Hủy</button>
             <button onClick={() => createOrderMut.mutate(orderForm)} disabled={createOrderMut.isLoading} className="btn-primary">
-              {createOrderMut.isLoading ? 'Dang luu...' : 'Tao don'}
+              {createOrderMut.isLoading ? 'Đang lưu...' : 'Tao don'}
             </button>
           </div>
         </div>
       </Modal>
 
       {/* Create Supplier Modal */}
-      <Modal open={showSupplierModal} onClose={() => setShowSupplierModal(false)} title="Them nha cung cap">
+      <Modal open={showSupplierModal} onClose={() => setShowSupplierModal(false)} title="Thêm nhà cung cấp">
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div><label className="label">Ma NCC</label><input className="input" value={supplierForm.code} onChange={e => setSupplierForm(f => ({ ...f, code: e.target.value }))} /></div>
@@ -191,11 +191,11 @@ export default function ProcurementPage() {
             <div><label className="label">Dien thoai</label><input className="input" value={supplierForm.phone} onChange={e => setSupplierForm(f => ({ ...f, phone: e.target.value }))} /></div>
           </div>
           <div><label className="label">Email</label><input className="input" value={supplierForm.email} onChange={e => setSupplierForm(f => ({ ...f, email: e.target.value }))} /></div>
-          <div><label className="label">Dia chi</label><input className="input" value={supplierForm.address} onChange={e => setSupplierForm(f => ({ ...f, address: e.target.value }))} /></div>
+          <div><label className="label">Địa chỉ</label><input className="input" value={supplierForm.address} onChange={e => setSupplierForm(f => ({ ...f, address: e.target.value }))} /></div>
           <div className="flex justify-end gap-3 pt-2">
-            <button onClick={() => setShowSupplierModal(false)} className="btn-secondary">Huy</button>
+            <button onClick={() => setShowSupplierModal(false)} className="btn-secondary">Hủy</button>
             <button onClick={() => createSupplierMut.mutate(supplierForm)} disabled={createSupplierMut.isLoading} className="btn-primary">
-              {createSupplierMut.isLoading ? 'Dang luu...' : 'Them'}
+              {createSupplierMut.isLoading ? 'Đang lưu...' : 'Thêm'}
             </button>
           </div>
         </div>
@@ -203,3 +203,6 @@ export default function ProcurementPage() {
     </Layout>
   );
 }
+
+
+

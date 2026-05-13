@@ -42,12 +42,12 @@ export default function AppointmentDialog({ frame, onClose }: Props) {
       <div>
         <div className="flex items-center gap-3 mb-5">
           <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600"><CalendarDays size={20} /></div>
-          <h2 className="text-lg font-bold text-gray-900">Dat lich kham moi</h2>
+          <h2 className="text-lg font-bold text-gray-900">Đặt lịch kham moi</h2>
         </div>
         <form onSubmit={handleSubmit(d => createMut.mutate({ ...d, ...(frame.ctx?.patientId ? { patientId: frame.ctx.patientId as string } : {}) }))} className="space-y-4">
           {!frame.ctx?.patientId && (
             <div>
-              <label className="label">Benh nhan *</label>
+              <label className="label">Bệnh nhân *</label>
               <select className="input" {...register('patientId', { required: true })}>
                 <option value="">-- Chon benh nhan --</option>
                 {patients.map((p: Record<string, string>) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -55,7 +55,7 @@ export default function AppointmentDialog({ frame, onClose }: Props) {
             </div>
           )}
           <div>
-            <label className="label">Bac si *</label>
+            <label className="label">Bác sĩ *</label>
             <select className="input" {...register('doctorId', { required: true })}>
               <option value="">-- Chon bac si --</option>
               {doctors.map((d: Record<string, unknown>) => (
@@ -64,7 +64,7 @@ export default function AppointmentDialog({ frame, onClose }: Props) {
             </select>
           </div>
           <div>
-            <label className="label">Ngay gio kham *</label>
+            <label className="label">Ngày gio kham *</label>
             <input type="datetime-local" className="input" {...register('appointmentDate', { required: true })} />
           </div>
           <div>
@@ -72,16 +72,16 @@ export default function AppointmentDialog({ frame, onClose }: Props) {
             <textarea className="input" rows={2} {...register('note')} />
           </div>
           <div className="flex gap-3 justify-end pt-2">
-            <button type="button" onClick={onClose} className="btn-secondary">Huy</button>
-            <button type="submit" disabled={createMut.isLoading} className="btn-primary">{createMut.isLoading ? 'Dang luu...' : 'Dat lich'}</button>
+            <button type="button" onClick={onClose} className="btn-secondary">Hủy</button>
+            <button type="submit" disabled={createMut.isLoading} className="btn-primary">{createMut.isLoading ? 'Đang lưu...' : 'Đặt lịch'}</button>
           </div>
         </form>
       </div>
     );
   }
 
-  if (isLoading) return <div className="flex items-center justify-center h-48 text-gray-400">Dang tai...</div>;
-  if (!appt) return <div className="text-center py-12 text-gray-400">Khong tim thay lich kham</div>;
+  if (isLoading) return <div className="flex items-center justify-center h-48 text-gray-400">Đang tải...</div>;
+  if (!appt) return <div className="text-center py-12 text-gray-400">Không tìm thấy lich kham</div>;
 
   return (
     <div>
@@ -97,7 +97,7 @@ export default function AppointmentDialog({ frame, onClose }: Props) {
         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
           <User size={16} className="text-gray-400" />
           <div>
-            <p className="text-xs text-gray-400">Benh nhan</p>
+            <p className="text-xs text-gray-400">Bệnh nhân</p>
             <EntityDialogLink entity="patient" id={appt.patient?.id}>
               <p className="text-sm font-medium text-primary">{appt.patient?.name}</p>
             </EntityDialogLink>
@@ -106,7 +106,7 @@ export default function AppointmentDialog({ frame, onClose }: Props) {
         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
           <Stethoscope size={16} className="text-gray-400" />
           <div>
-            <p className="text-xs text-gray-400">Bac si</p>
+            <p className="text-xs text-gray-400">Bác sĩ</p>
             <EntityDialogLink entity="doctor" id={appt.doctor?.id}>
               <p className="text-sm font-medium text-primary">BS. {appt.doctor?.user?.name}</p>
             </EntityDialogLink>
@@ -135,11 +135,11 @@ export default function AppointmentDialog({ frame, onClose }: Props) {
         <div className="flex gap-2">
           <button onClick={() => updateStatus.mutate('CONFIRMED')}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-green-50 text-green-700 rounded-xl text-sm font-medium hover:bg-green-100">
-            <CheckCircle size={16} /> Xac nhan
+            <CheckCircle size={16} /> Xác nhận
           </button>
           <button onClick={() => updateStatus.mutate('CANCELLED')}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50 text-red-700 rounded-xl text-sm font-medium hover:bg-red-100">
-            <XCircle size={16} /> Huy lich
+            <XCircle size={16} /> Hủy lich
           </button>
         </div>
       )}
@@ -151,10 +151,13 @@ export default function AppointmentDialog({ frame, onClose }: Props) {
           </button>
           <button onClick={() => updateStatus.mutate('COMPLETED')}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-green-50 text-green-700 rounded-xl text-sm font-medium hover:bg-green-100">
-            <CheckCircle size={16} /> Hoan thanh
+            <CheckCircle size={16} /> Hoàn thành
           </button>
         </div>
       )}
     </div>
   );
 }
+
+
+

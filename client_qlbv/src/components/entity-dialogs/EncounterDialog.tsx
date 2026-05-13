@@ -22,8 +22,8 @@ export default function EncounterDialog({ frame, onClose }: Props) {
     { onSuccess: () => { qc.invalidateQueries(['enc-dlg', frame.id]); qc.invalidateQueries('encounters'); } }
   );
 
-  if (isLoading) return <div className="flex items-center justify-center h-48 text-gray-400">Dang tai...</div>;
-  if (!enc) return <div className="text-center py-12 text-gray-400">Khong tim thay dot dieu tri</div>;
+  if (isLoading) return <div className="flex items-center justify-center h-48 text-gray-400">Đang tải...</div>;
+  if (!enc) return <div className="text-center py-12 text-gray-400">Không tìm thấy dot dieu tri</div>;
 
   return (
     <div>
@@ -40,7 +40,7 @@ export default function EncounterDialog({ frame, onClose }: Props) {
 
       <div className="space-y-3 mb-5">
         <div className="p-3 bg-gray-50 rounded-xl">
-          <p className="text-xs text-gray-400 mb-1">Benh nhan</p>
+          <p className="text-xs text-gray-400 mb-1">Bệnh nhân</p>
           <EntityDialogLink entity="patient" id={enc.patient?.id}>
             <p className="text-sm font-medium text-primary">{enc.patient?.name}</p>
           </EntityDialogLink>
@@ -68,7 +68,7 @@ export default function EncounterDialog({ frame, onClose }: Props) {
         )}
         {enc.admitDate && (
           <div className="p-3 bg-gray-50 rounded-xl">
-            <p className="text-xs text-gray-400 mb-1">Ngay vao</p>
+            <p className="text-xs text-gray-400 mb-1">Ngày vao</p>
             <p className="text-sm font-medium">{format(new Date(enc.admitDate), 'dd/MM/yyyy HH:mm')}</p>
           </div>
         )}
@@ -103,3 +103,4 @@ export default function EncounterDialog({ frame, onClose }: Props) {
     </div>
   );
 }
+

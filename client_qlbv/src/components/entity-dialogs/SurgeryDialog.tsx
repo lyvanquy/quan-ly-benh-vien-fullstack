@@ -16,7 +16,7 @@ export default function SurgeryDialog({ frame }: Props) {
   );
 
   if (isLoading) return <div className="skeleton h-48 rounded-xl" />;
-  if (!surgery) return <div className="text-center py-12 text-gray-400">Khong tim thay phau thuat</div>;
+  if (!surgery) return <div className="text-center py-12 text-gray-400">Không tìm thấy phau thuat</div>;
 
   return (
     <div>
@@ -54,7 +54,7 @@ export default function SurgeryDialog({ frame }: Props) {
           </h4>
           <div className="space-y-2 text-sm">
             <div className="flex items-start gap-2">
-              <span className="text-gray-400 text-xs w-24 shrink-0">Benh nhan:</span>
+              <span className="text-gray-400 text-xs w-24 shrink-0">Bệnh nhân:</span>
               <EntityDialogLink entity="patient" id={surgery.patientId} className="text-sm font-medium">
                 {surgery.patient?.name}
               </EntityDialogLink>
@@ -93,3 +93,4 @@ function Row({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

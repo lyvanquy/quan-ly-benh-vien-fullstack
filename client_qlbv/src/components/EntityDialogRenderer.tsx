@@ -16,8 +16,8 @@ import ConsentDialog from './entity-dialogs/ConsentDialog';
 import TeleConsultDialog from './entity-dialogs/TeleConsultDialog';
 
 const ENTITY_LABELS: Record<EntityType, string> = {
-  patient: 'Benh nhan', appointment: 'Lich kham', doctor: 'Bac si',
-  encounter: 'Dot dieu tri', bill: 'Hoa don', lab_order: 'Xet nghiem',
+  patient: 'Bệnh nhân', appointment: 'Lịch khám', doctor: 'Bác sĩ',
+  encounter: 'Đợt điều trị', bill: 'Hóa đơn', lab_order: 'Xét nghiệm',
   medicine: 'Thuoc', bed: 'Giuong', surgery: 'Phau thuat',
   referral: 'Chuyen vien', consent: 'Dong thuan', teleconsult: 'Kham tu xa',
   workflow_node: 'Workflow Node',
@@ -136,3 +136,4 @@ export default function EntityDialogRenderer() {
     </div>
   );
 }
+

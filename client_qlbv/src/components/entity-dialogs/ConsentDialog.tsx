@@ -23,12 +23,12 @@ export default function ConsentDialog({ frame, onClose }: Props) {
 
   const saveMut = useMutation(
     (d: typeof form) => isCreate ? api.post('/consent', d) : api.put(`/consent/${frame.id}`, d),
-    { onSuccess: () => { qc.invalidateQueries('consent'); toast.success(isCreate ? 'Da tao phieu dong thuan' : 'Da cap nhat'); isCreate ? onClose() : setEditing(false); } }
+    { onSuccess: () => { qc.invalidateQueries('consent'); toast.success(isCreate ? 'Da tao phiếu đồng thuận' : 'Da cập nhật'); isCreate ? onClose() : setEditing(false); } }
   );
 
   const signMut = useMutation(
-    () => api.put(`/consent/${frame.id}/sign`, { signedBy: 'Benh nhan' }),
-    { onSuccess: () => { qc.invalidateQueries(['consent-dlg', frame.id]); toast.success('Da ky phieu dong thuan'); } }
+    () => api.put(`/consent/${frame.id}/sign`, { signedBy: 'Bệnh nhân' }),
+    { onSuccess: () => { qc.invalidateQueries(['consent-dlg', frame.id]); toast.success('Da ky phiếu đồng thuận'); } }
   );
 
   if (isLoading) return <div className="skeleton h-48 rounded-xl" />;
@@ -41,7 +41,7 @@ export default function ConsentDialog({ frame, onClose }: Props) {
           <FileCheck size={20} className="text-white" />
         </div>
         <div className="flex-1">
-          <h2 className="text-xl font-bold text-gray-900">{isCreate ? 'Tao phieu dong thuan' : `Phieu dong thuan — ${TYPE_LABEL[consent?.type] || consent?.type}`}</h2>
+          <h2 className="text-xl font-bold text-gray-900">{isCreate ? 'Tạo phiếu dong thuan' : `Phieu dong thuan — ${TYPE_LABEL[consent?.type] || consent?.type}`}</h2>
           {consent?.signedAt && (
             <div className="flex items-center gap-1.5 mt-1 text-xs text-green-600">
               <CheckCircle size={12} /> Da ky ngay {new Date(consent.signedAt).toLocaleDateString('vi-VN')}
@@ -49,14 +49,14 @@ export default function ConsentDialog({ frame, onClose }: Props) {
           )}
         </div>
         {!isCreate && !editing && !consent?.signedAt && (
-          <button onClick={() => setEditing(true)} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1"><Edit2 size={12} /> Sua</button>
+          <button onClick={() => setEditing(true)} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1"><Edit2 size={12} /> Sửa</button>
         )}
       </div>
 
       {editing ? (
         <div className="space-y-3">
           {isCreate && (
-            <div><label className="label">ID Benh nhan *</label>
+            <div><label className="label">ID Bệnh nhân *</label>
               <input className="input" value={form.patientId} onChange={e => setForm(f => ({ ...f, patientId: e.target.value }))} /></div>
           )}
           <div><label className="label">Loai phieu *</label>
@@ -70,19 +70,19 @@ export default function ConsentDialog({ frame, onClose }: Props) {
           <div><label className="label">Noi dung dong thuan *</label>
             <textarea className="input" rows={5} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} /></div>
           <div className="flex gap-3 justify-end pt-2">
-            {!isCreate && <button onClick={() => setEditing(false)} className="btn-secondary flex items-center gap-1"><X size={12} /> Huy</button>}
+            {!isCreate && <button onClick={() => setEditing(false)} className="btn-secondary flex items-center gap-1"><X size={12} /> Hủy</button>}
             <button onClick={() => saveMut.mutate(form)} disabled={saveMut.isLoading} className="btn-primary flex items-center gap-1">
-              <Save size={12} /> {saveMut.isLoading ? 'Dang luu...' : 'Luu'}
+              <Save size={12} /> {saveMut.isLoading ? 'Đang lưu...' : 'Lưu'}
             </button>
           </div>
         </div>
       ) : consent && (
         <div className="space-y-4">
           <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-            <Row label="Benh nhan" value={consent.patient?.name || consent.patientId} />
+            <Row label="Bệnh nhân" value={consent.patient?.name || consent.patientId} />
             <Row label="Loai" value={TYPE_LABEL[consent.type] || consent.type} />
-            <Row label="Ngay tao" value={new Date(consent.createdAt).toLocaleDateString('vi-VN')} />
-            {consent.signedAt && <Row label="Ngay ky" value={new Date(consent.signedAt).toLocaleDateString('vi-VN')} />}
+            <Row label="Ngày tao" value={new Date(consent.createdAt).toLocaleDateString('vi-VN')} />
+            {consent.signedAt && <Row label="Ngày ky" value={new Date(consent.signedAt).toLocaleDateString('vi-VN')} />}
             {consent.signedBy && <Row label="Nguoi ky" value={consent.signedBy} />}
           </div>
           <div className="bg-blue-50 rounded-xl p-4">
@@ -91,7 +91,7 @@ export default function ConsentDialog({ frame, onClose }: Props) {
           </div>
           {!consent.signedAt && (
             <button onClick={() => signMut.mutate()} disabled={signMut.isLoading} className="w-full py-2.5 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 flex items-center justify-center gap-2">
-              <CheckCircle size={16} /> {signMut.isLoading ? 'Dang xu ly...' : 'Xac nhan ky phieu'}
+              <CheckCircle size={16} /> {signMut.isLoading ? 'Dang xu ly...' : 'Xác nhận ky phieu'}
             </button>
           )}
         </div>
@@ -108,3 +108,6 @@ function Row({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+
+
